@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -87,7 +88,8 @@ class BasicIntervalFunctionDecoratorTest {
 	private String getHttpDateString(int secondsOffset) {
 		// Format for valid http date format
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, d MMM yyyy HH:mm:ss 'GMT'");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, d MMM yyyy HH:mm:ss 'GMT'",
+				Locale.ENGLISH);
 
 		return LocalDateTime.now(ZoneOffset.UTC).plusSeconds(secondsOffset).format(formatter);
 	}

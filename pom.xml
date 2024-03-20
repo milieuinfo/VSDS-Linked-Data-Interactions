@@ -91,6 +91,18 @@
         <sonar.organization>informatievlaanderen</sonar.organization>
         <sonar.projectKey>Informatievlaanderen_VSDS-Linked-Data-Interactions-${project.groupId}:${project.artifactId}
         </sonar.projectKey>
+
+
+        <!-- ACD Properties-->
+        <acd.issueManagement.system>Jira</acd.issueManagement.system>
+        <acd.issueManagement.url>https://www.milieuinfo.be/jira</acd.issueManagement.url>
+        <acd.ciManagement.system>Bamboo</acd.ciManagement.system>
+        <acd.ciManagement.url>https://www.milieuinfo.be/bamboo</acd.ciManagement.url>
+        <acd.repository.url>https://www.milieuinfo.be/artifactory</acd.repository.url>
+        <acd.repository.snapshot.url>${acd.repository.url}/snapshot</acd.repository.snapshot.url>
+        <acd.repository.release.url>${acd.repository.url}/release</acd.repository.release.url>
+        <acd.repository.owasp.reports.url>${acd.repository.url}/owasp-reports</acd.repository.owasp.reports.url>
+        <acd.scm.maven-url>scm:svn:https://svn.milieuinfo.be/productie/svn</acd.scm.maven-url>
     </properties>
 
     <build>
@@ -404,18 +416,28 @@
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:Informatievlaanderen/VSDS-Linked-Data-Interactions.git</url>
+        <url>git@github.com:milieuinfo/VSDS-Linked-Data-Interactions.git</url>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>release</id>
+            <url>${acd.repository.release.url}</url>
         </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url>${acd.repository.snapshot.url}</url>
+        </snapshotRepository>
     </distributionManagement>
+
+    <issueManagement>
+        <system>${acd.issueManagement.system}</system>
+        <url>${acd.issueManagement.url}</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>${acd.ciManagement.system}</system>
+        <url>${acd.ciManagement.url}</url>
+    </ciManagement>
 </project>

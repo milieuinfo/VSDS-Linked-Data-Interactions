@@ -6,7 +6,7 @@ import org.testcontainers.activemq.ArtemisContainer;
 
 public class TestContext {
 
-    final ArtemisContainer activemq = new ArtemisContainer("apache/activemq-artemis:2.30.0-alpine")
+    final ArtemisContainer activemq = new ArtemisContainer("apache/activemq-artemis:2.32.0-alpine")
             .withUser("user")
             .withPassword("password")
             .withExposedPorts(61616);
