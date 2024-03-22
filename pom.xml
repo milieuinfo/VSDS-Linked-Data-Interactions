@@ -163,8 +163,10 @@
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.7</version>
         <configuration>
-          <excludes>**/com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</excludes>
-          <excludes>**/org/roaringbitmap/ArraysShim.class</excludes>
+          <excludes>
+            <exclude>**/com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</exclude>
+            <exclude>**/org/roaringbitmap/ArraysShim.class</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
