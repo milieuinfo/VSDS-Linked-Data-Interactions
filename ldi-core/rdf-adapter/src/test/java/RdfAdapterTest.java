@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.apache.jena.riot.lang.LangJSONLD11.JSONLD_OPTIONS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled
 @WireMockTest(httpPort = 10101)
 class RdfAdapterTest {
 
