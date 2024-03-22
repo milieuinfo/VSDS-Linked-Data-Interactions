@@ -164,6 +164,7 @@
         <version>0.8.7</version>
         <configuration>
           <excludes>**/com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</excludes>
+          <excludes>**/org/roaringbitmap/ArraysShim.class</excludes>
         </configuration>
       </plugin>
       <plugin>
