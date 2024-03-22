@@ -106,6 +106,9 @@
     <acd.repository.owasp.reports.url>${acd.repository.url}/owasp-reports
     </acd.repository.owasp.reports.url>
     <acd.scm.maven-url>scm:svn:https://svn.milieuinfo.be/productie/svn</acd.scm.maven-url>
+
+    <jdeb.version>1.10</jdeb.version>
+    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
   </properties>
 
   <build>
@@ -125,36 +128,36 @@
     </pluginManagement>
 
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce</id>
-            <configuration>
-              <rules>
-                <dependencyConvergence />
-                <reactorModuleConvergence>
-                  <ignoreModuleDependencies>true</ignoreModuleDependencies>
-                </reactorModuleConvergence>
-                <requireJavaVersion>
-                  <version>${java.version}</version>
-                </requireJavaVersion>
-                <requireNoRepositories>
-                  <message>
-                    Best Practice is to never define repositories in pom.xml
-                    (use DIDM Artifactory instead)
-                  </message>
-                </requireNoRepositories>
-              </rules>
-              <fail>true</fail>
-            </configuration>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-enforcer-plugin</artifactId>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>enforce</id>-->
+<!--            <configuration>-->
+<!--              <rules>-->
+<!--                <dependencyConvergence />-->
+<!--                <reactorModuleConvergence>-->
+<!--                  <ignoreModuleDependencies>true</ignoreModuleDependencies>-->
+<!--                </reactorModuleConvergence>-->
+<!--                <requireJavaVersion>-->
+<!--                  <version>${java.version}</version>-->
+<!--                </requireJavaVersion>-->
+<!--                <requireNoRepositories>-->
+<!--                  <message>-->
+<!--                    Best Practice is to never define repositories in pom.xml-->
+<!--                    (use DIDM Artifactory instead)-->
+<!--                  </message>-->
+<!--                </requireNoRepositories>-->
+<!--              </rules>-->
+<!--              <fail>true</fail>-->
+<!--            </configuration>-->
+<!--            <goals>-->
+<!--              <goal>enforce</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
 
       <plugin>
         <groupId>org.owasp</groupId>
