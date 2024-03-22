@@ -163,7 +163,7 @@
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.7</version>
         <configuration>
-          <excludes>com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</excludes>
+          <excludes>**/com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</excludes>
         </configuration>
       </plugin>
       <plugin>
