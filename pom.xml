@@ -1,443 +1,426 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <name>${project.groupId}:${project.artifactId}</name>
-    <description>Java based pipeline framework to interact with Linked Data</description>
-    <url>https://informatievlaanderen.github.io/VSDS-Linked-Data-Interactions/</url>
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Java based pipeline framework to interact with Linked Data</description>
+  <url>https://informatievlaanderen.github.io/VSDS-Linked-Data-Interactions/</url>
 
-    <groupId>be.vlaanderen.informatievlaanderen.ldes</groupId>
-    <artifactId>linked-data-interactions</artifactId>
-    <packaging>pom</packaging>
-    <version>2.2.0-SNAPSHOT</version>
+  <groupId>be.vlaanderen.informatievlaanderen.ldes</groupId>
+  <artifactId>linked-data-interactions</artifactId>
+  <packaging>pom</packaging>
+  <version>2.2.0-SNAPSHOT</version>
 
-    <modules>
-        <module>ldi-api</module>
-        <module>ldi-core</module>
-        <module>ldi-orchestrator</module>
-        <module>ldi-nifi</module>
-        <module>ldi-extensions</module>
-    </modules>
+  <modules>
+    <module>ldi-api</module>
+    <module>ldi-core</module>
+    <module>ldi-orchestrator</module>
+    <module>ldi-nifi</module>
+    <module>ldi-extensions</module>
+  </modules>
 
-    <developers>
-        <developer>
-            <name>Yalz</name>
-            <email>Yalz@users.noreply.github.com </email>
-            <organization>Cegeka</organization>
-            <organizationUrl>http://www.sonatype.com</organizationUrl>
-        </developer>
-    </developers>
+  <developers>
+    <developer>
+      <name>Yalz</name>
+      <email>Yalz@users.noreply.github.com</email>
+      <organization>Cegeka</organization>
+      <organizationUrl>http://www.sonatype.com</organizationUrl>
+    </developer>
+  </developers>
 
-    <licenses>
-        <license>
-            <name>EUPL</name>
-            <url>https://eupl.eu/1.2/en</url>
-        </license>
-    </licenses>
+  <licenses>
+    <license>
+      <name>EUPL</name>
+      <url>https://eupl.eu/1.2/en</url>
+    </license>
+  </licenses>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
 
-        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-        <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-        <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
-        <unittestskip>false</unittestskip>
-        <integrationtestskip>false</integrationtestskip>
+    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+    <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
+    <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+    <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+    <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
+    <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+    <unittestskip>false</unittestskip>
+    <integrationtestskip>false</integrationtestskip>
 
-        <impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
+    <impsort-maven-plugin.version>1.9.0</impsort-maven-plugin.version>
 
-        <jena.version>4.10.0</jena.version>
-        <sis-embedded-db.version>1.4</sis-embedded-db.version>
-        <xml-bind.version>4.0.1</xml-bind.version>
-        <jackson.version>2.15.3</jackson.version>
+    <jena.version>4.10.0</jena.version>
+    <sis-embedded-db.version>1.4</sis-embedded-db.version>
+    <xml-bind.version>4.0.1</xml-bind.version>
+    <jackson.version>2.15.3</jackson.version>
 
-        <!-- LOGGING -->
-        <micrometer-prometheus.version>1.12.0</micrometer-prometheus.version>
-        <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
-        <zipkin-reporter.version>2.16.4</zipkin-reporter.version>
-        <loki.version>1.4.2</loki.version>
+    <!-- LOGGING -->
+    <micrometer-prometheus.version>1.12.0</micrometer-prometheus.version>
+    <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
+    <zipkin-reporter.version>2.16.4</zipkin-reporter.version>
+    <loki.version>1.4.2</loki.version>
 
-        <!-- Testing -->
-        <assertj.version>3.24.2</assertj.version>
-        <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <awaitility.version>4.2.0</awaitility.version>
-        <byte-buddy.version>1.14.11</byte-buddy.version>
-        <wiremock-jre8.version>2.35.1</wiremock-jre8.version>
-        <mockito-core.version>5.5.0</mockito-core.version>
-        <mockito-junit.version>5.5.0</mockito-junit.version>
-        <testcontainers.version>1.19.6</testcontainers.version>
-        <testcontainers-postgresql.version>1.19.0</testcontainers-postgresql.version>
-        <slf4j.version>2.0.7</slf4j.version>
-        <byte-buddy-dep.version>1.14.7</byte-buddy-dep.version>
-        <logback-classic.version>1.4.11</logback-classic.version>
-        <!-- Jacoco -->
-        <jacoco.version>0.8.10</jacoco.version>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.language>java</sonar.language>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.organization>informatievlaanderen</sonar.organization>
-        <sonar.projectKey>Informatievlaanderen_VSDS-Linked-Data-Interactions-${project.groupId}:${project.artifactId}
-        </sonar.projectKey>
+    <!-- Testing -->
+    <assertj.version>3.24.2</assertj.version>
+    <junit-jupiter.version>5.10.0</junit-jupiter.version>
+    <awaitility.version>4.2.0</awaitility.version>
+    <byte-buddy.version>1.14.11</byte-buddy.version>
+    <wiremock-jre8.version>2.35.1</wiremock-jre8.version>
+    <mockito-core.version>5.5.0</mockito-core.version>
+    <mockito-junit.version>5.5.0</mockito-junit.version>
+    <testcontainers.version>1.19.6</testcontainers.version>
+    <testcontainers-postgresql.version>1.19.0</testcontainers-postgresql.version>
+    <slf4j.version>2.0.7</slf4j.version>
+    <byte-buddy-dep.version>1.14.7</byte-buddy-dep.version>
+    <logback-classic.version>1.4.11</logback-classic.version>
+    <!-- Jacoco -->
+    <jacoco.version>0.8.10</jacoco.version>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml
+    </sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.language>java</sonar.language>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.organization>informatievlaanderen</sonar.organization>
+    <sonar.projectKey>
+      Informatievlaanderen_VSDS-Linked-Data-Interactions-${project.groupId}:${project.artifactId}
+    </sonar.projectKey>
 
 
-        <!-- ACD Properties-->
-        <acd.issueManagement.system>Jira</acd.issueManagement.system>
-        <acd.issueManagement.url>https://www.milieuinfo.be/jira</acd.issueManagement.url>
-        <acd.ciManagement.system>Bamboo</acd.ciManagement.system>
-        <acd.ciManagement.url>https://www.milieuinfo.be/bamboo</acd.ciManagement.url>
-        <acd.repository.url>https://www.milieuinfo.be/artifactory</acd.repository.url>
-        <acd.repository.snapshot.url>${acd.repository.url}/snapshot</acd.repository.snapshot.url>
-        <acd.repository.release.url>${acd.repository.url}/release</acd.repository.release.url>
-        <acd.repository.owasp.reports.url>${acd.repository.url}/owasp-reports</acd.repository.owasp.reports.url>
-        <acd.scm.maven-url>scm:svn:https://svn.milieuinfo.be/productie/svn</acd.scm.maven-url>
-    </properties>
+    <!-- ACD Properties-->
+    <acd.issueManagement.system>Jira</acd.issueManagement.system>
+    <acd.issueManagement.url>https://www.milieuinfo.be/jira</acd.issueManagement.url>
+    <acd.ciManagement.system>Bamboo</acd.ciManagement.system>
+    <acd.ciManagement.url>https://www.milieuinfo.be/bamboo</acd.ciManagement.url>
+    <acd.repository.url>https://www.milieuinfo.be/artifactory</acd.repository.url>
+    <acd.repository.snapshot.url>${acd.repository.url}/snapshot</acd.repository.snapshot.url>
+    <acd.repository.release.url>${acd.repository.url}/release</acd.repository.release.url>
+    <acd.repository.owasp.reports.url>${acd.repository.url}/owasp-reports
+    </acd.repository.owasp.reports.url>
+    <acd.scm.maven-url>scm:svn:https://svn.milieuinfo.be/productie/svn</acd.scm.maven-url>
+  </properties>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>${maven-gpg-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                </plugin>
-                <!-- JACOCO -->
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>${maven-gpg-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+        <!-- JACOCO -->
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>net.revelc.code</groupId>
+        <artifactId>impsort-maven-plugin</artifactId>
+        <version>${impsort-maven-plugin.version}</version>
+        <configuration>
+          <removeUnused>true</removeUnused>
+          <groups>*, java.,javax.,com.</groups>
+          <staticGroups>*</staticGroups>
+          <staticAfter>true</staticAfter>
+        </configuration>
+        <executions>
+          <execution>
+            <id>sort-imports</id>
+            <goals>
+              <goal>sort</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>${unittestskip}</skip>
+          <environmentVariables>
+            <SIS_DATA>./</SIS_DATA>
+          </environmentVariables>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <skip>${integrationtestskip}</skip>
+          <includes>
+            <include>**/*IT.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Override version for maven-install-plugin because there is a bug in
+           3.0.0-M1 preventing installing of modules with packaging of feature
+           see: https://issues.apache.org/jira/browse/MINSTALL-151 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>${maven-install-plugin.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${maven-release-plugin.version}</version>
+        <configuration>
+          <scmCommentPrefix>[ci skip]</scmCommentPrefix>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+      <!--            <plugin>-->
+      <!--                <groupId>org.apache.maven.plugins</groupId>-->
+      <!--                <artifactId>maven-gpg-plugin</artifactId>-->
+      <!--                <executions>-->
+      <!--                    <execution>-->
+      <!--                        <id>sign-artifacts</id>-->
+      <!--                        <phase>deploy</phase>-->
+      <!--                        <goals>-->
+      <!--                            <goal>sign</goal>-->
+      <!--                        </goals>-->
+      <!--                        <configuration>-->
+      <!--                            <gpgArguments>-->
+      <!--                                <arg>&#45;&#45;pinentry-mode</arg>-->
+      <!--                                <arg>loopback</arg>-->
+      <!--                            </gpgArguments>-->
+      <!--                        </configuration>-->
+      <!--                    </execution>-->
+      <!--                </executions>-->
+      <!--            </plugin>-->
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <configuration>
+          <suppressionFiles>
+            <suppressionFile>${project.basedir}/owasp-suppression.xml</suppressionFile>
+          </suppressionFiles>
+          <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+          <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- LDI components -->
+      <dependency>
+        <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi</groupId>
+        <artifactId>ldi-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi</groupId>
+        <artifactId>ldi-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-arq</artifactId>
+        <version>${jena.version}</version>
+      </dependency>
+
+      <!-- Logging -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-registry-prometheus</artifactId>
+        <version>${micrometer-prometheus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        <version>${micrometer-tracing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.zipkin.reporter2</groupId>
+        <artifactId>zipkin-reporter-brave</artifactId>
+        <version>${zipkin-reporter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.loki4j</groupId>
+        <artifactId>loki-logback-appender</artifactId>
+        <version>${loki.version}</version>
+      </dependency>
+
+      <!-- Testing -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${awaitility.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8</artifactId>
+        <version>${wiremock-jre8.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito-core.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito-junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <id>owasp-dependency-check</id>
+      <build>
         <plugins>
-            <plugin>
-                <groupId>net.revelc.code</groupId>
-                <artifactId>impsort-maven-plugin</artifactId>
-                <version>${impsort-maven-plugin.version}</version>
-                <configuration>
-                    <removeUnused>true</removeUnused>
-                    <groups>*, java.,javax.,com.</groups>
-                    <staticGroups>*</staticGroups>
-                    <staticAfter>true</staticAfter>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>sort-imports</id>
-                        <goals>
-                            <goal>sort</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skip>${unittestskip}</skip>
-                    <environmentVariables>
-                        <SIS_DATA>./</SIS_DATA>
-                    </environmentVariables>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skip>${integrationtestskip}</skip>
-                    <includes>
-                        <include>**/*IT.java</include>
-                    </includes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Override version for maven-install-plugin because there is a bug in
-                 3.0.0-M1 preventing installing of modules with packaging of feature
-                 see: https://issues.apache.org/jira/browse/MINSTALL-151 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>${maven-install-plugin.version}</version>
-            </plugin>
+          <!-- OWASP Dependency check -->
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <configuration>
+              <skipProvidedScope>true</skipProvidedScope>
+              <skipRuntimeScope>true</skipRuntimeScope>
+              <!-- TODO cveUrlModified & cveUrlBase werken niet meer voor 9.x -> nvdDatafeedUrl op artifactory ? -->
+              <!--              <cveUrlModified>${acd.repository.url}/nvd-json-mirror/1.1/nvdcve-1.1-modified.json.gz</cveUrlModified>-->
+              <!--              <cveUrlBase>${acd.repository.url}/nvd-json-mirror/1.1/nvdcve-1.1-%d.json.gz</cveUrlBase>-->
+              <!-- Disable in central & nexus-->
+              <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
+              <nexusAnalyzerEnabled>false</nexusAnalyzerEnabled>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin.version}</version>
-                <configuration>
-                    <scmCommentPrefix>[ci skip]</scmCommentPrefix>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                </configuration>
-            </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-gpg-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>sign-artifacts</id>-->
-<!--                        <phase>deploy</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>sign</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <gpgArguments>-->
-<!--                                <arg>&#45;&#45;pinentry-mode</arg>-->
-<!--                                <arg>loopback</arg>-->
-<!--                            </gpgArguments>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+              <!-- No python , ruby , cmake etc checking -->
+              <enableExperimental>false</enableExperimental>
+              <!-- Only use recent node analyzer -->
+              <enableRetired>false</enableRetired>
+              <!-- No .net -->
+              <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+              <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+              <!-- No openssl analyser -->
+              <opensslAnalyzerEnabled>false</opensslAnalyzerEnabled>
+              <!-- Following currently require an Internet connection, hence disable by default -->
+              <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+              <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+              <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+              <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+
+              <!-- Fail when score is greater then 8 -->
+              <failBuildOnCVSS>8</failBuildOnCVSS>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <file>${project.build.directory}/dependency-check-report.html</file>
+              <repositoryId>snapshot</repositoryId>
+              <url>${acd.repository.owasp.reports.url}</url>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <packaging>html</packaging>
+              <artifactId>owasp-dependency-check-report</artifactId>
+              <version>${project.version}</version>
+            </configuration>
+          </plugin>
         </plugins>
-    </build>
+      </build>
+    </profile>
+  </profiles>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- LDI components -->
-            <dependency>
-                <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi</groupId>
-                <artifactId>ldi-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi</groupId>
-                <artifactId>ldi-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+  <scm>
+    <connection>scm:git:${project.scm.url}</connection>
+    <developerConnection>scm:git:${project.scm.url}</developerConnection>
+    <url>git@github.com:milieuinfo/VSDS-Linked-Data-Interactions.git</url>
+    <tag>HEAD</tag>
+  </scm>
 
-            <dependency>
-                <groupId>org.apache.jena</groupId>
-                <artifactId>jena-arq</artifactId>
-                <version>${jena.version}</version>
-            </dependency>
+  <distributionManagement>
+    <repository>
+      <id>release</id>
+      <url>${acd.repository.release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot</id>
+      <url>${acd.repository.snapshot.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
 
-            <!-- Logging -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>${micrometer-prometheus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-tracing-bridge-otel</artifactId>
-                <version>${micrometer-tracing.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.zipkin.reporter2</groupId>
-                <artifactId>zipkin-reporter-brave</artifactId>
-                <version>${zipkin-reporter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.loki4j</groupId>
-                <artifactId>loki-logback-appender</artifactId>
-                <version>${loki.version}</version>
-            </dependency>
+  <issueManagement>
+    <system>${acd.issueManagement.system}</system>
+    <url>${acd.issueManagement.url}</url>
+  </issueManagement>
 
-            <!-- Testing -->
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>${assertj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy</artifactId>
-                <version>${byte-buddy.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.awaitility</groupId>
-                <artifactId>awaitility</artifactId>
-                <version>${awaitility.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.tomakehurst</groupId>
-                <artifactId>wiremock-jre8</artifactId>
-                <version>${wiremock-jre8.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito-core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-junit-jupiter</artifactId>
-                <version>${mockito-junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <profiles>
-        <profile>
-            <id>coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco.version}</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>META-INF/**</exclude>
-                                <exclude>**/CustomHTTPRepositoryConnection.java</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <configuration>
-                                    <formats>
-                                        <format>XML</format>
-                                    </formats>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <!-- RELEASE PREP -->
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadoc</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-source</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${nexus-staging-maven-plugin.version}</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <scm>
-        <connection>scm:git:${project.scm.url}</connection>
-        <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:milieuinfo/VSDS-Linked-Data-Interactions.git</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>release</id>
-            <url>${acd.repository.release.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshot</id>
-            <url>${acd.repository.snapshot.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <issueManagement>
-        <system>${acd.issueManagement.system}</system>
-        <url>${acd.issueManagement.url}</url>
-    </issueManagement>
-
-    <ciManagement>
-        <system>${acd.ciManagement.system}</system>
-        <url>${acd.ciManagement.url}</url>
-    </ciManagement>
+  <ciManagement>
+    <system>${acd.ciManagement.system}</system>
+    <url>${acd.ciManagement.url}</url>
+  </ciManagement>
 </project>
