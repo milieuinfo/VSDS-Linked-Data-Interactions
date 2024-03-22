@@ -50,13 +50,6 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- enforce -->
-        <dependency>
-            <groupId>org.roaringbitmap</groupId>
-            <artifactId>RoaringBitmap</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
     <build>
