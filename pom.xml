@@ -128,46 +128,35 @@
     </pluginManagement>
 
     <plugins>
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-enforcer-plugin</artifactId>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>enforce</id>-->
-<!--            <configuration>-->
-<!--              <rules>-->
-<!--                <dependencyConvergence />-->
-<!--                <reactorModuleConvergence>-->
-<!--                  <ignoreModuleDependencies>true</ignoreModuleDependencies>-->
-<!--                </reactorModuleConvergence>-->
-<!--                <requireJavaVersion>-->
-<!--                  <version>${java.version}</version>-->
-<!--                </requireJavaVersion>-->
-<!--                <requireNoRepositories>-->
-<!--                  <message>-->
-<!--                    Best Practice is to never define repositories in pom.xml-->
-<!--                    (use DIDM Artifactory instead)-->
-<!--                  </message>-->
-<!--                </requireNoRepositories>-->
-<!--              </rules>-->
-<!--              <fail>true</fail>-->
-<!--            </configuration>-->
-<!--            <goals>-->
-<!--              <goal>enforce</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.7</version>
-        <configuration>
-          <excludes>
-            <exclude>**/com/fasterxml/jackson/core/io/doubleparser/BigSignificand.class</exclude>
-            <exclude>**/org/roaringbitmap/ArraysShim.class</exclude>
-          </excludes>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce</id>
+            <configuration>
+              <rules>
+                <dependencyConvergence />
+                <reactorModuleConvergence>
+                  <ignoreModuleDependencies>true</ignoreModuleDependencies>
+                </reactorModuleConvergence>
+                <requireJavaVersion>
+                  <version>${java.version}</version>
+                </requireJavaVersion>
+                <requireNoRepositories>
+                  <message>
+                    Best Practice is to never define repositories in pom.xml
+                    (use DIDM Artifactory instead)
+                  </message>
+                </requireNoRepositories>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.owasp</groupId>
@@ -284,6 +273,38 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito-junit.version}</version>
         <scope>test</scope>
+      </dependency>
+
+      <!-- enforcer -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.15.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>2.3.8</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.14</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpcore</artifactId>
+        <version>4.4.16</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+        <version>3.4.3.Final</version>
+      </dependency>
+      <dependency>
+        <groupId>org.checkerframework</groupId>
+        <artifactId>checker-qual</artifactId>
+        <version>3.37.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
