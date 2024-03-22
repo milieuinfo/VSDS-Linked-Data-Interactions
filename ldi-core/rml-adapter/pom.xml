@@ -50,12 +50,6 @@
             <artifactId>carml-logical-source-resolver-csv</artifactId>
             <version>${carml.version}</version>
         </dependency>
-        <!-- enforce -->
-        <dependency>
-            <groupId>org.roaringbitmap</groupId>
-            <artifactId>RoaringBitmap</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
 </project>
