@@ -23,4 +23,20 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <suppressionFiles>
+                        <suppressionFile>${project.basedir}/owasp-suppression.xml</suppressionFile>
+                    </suppressionFiles>
+                    <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+                    <nodeAuditSkipDevDependencies>true</nodeAuditSkipDevDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

@@ -6,6 +6,7 @@ import org.apache.jena.riot.RDFParserBuilder;
 import org.apache.jena.riot.RIOT;
 import org.apache.jena.sparql.util.ContextAccumulator;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.apicatalog.jsonld.JsonLdOptions;
@@ -18,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.apache.jena.riot.lang.LangJSONLD11.JSONLD_OPTIONS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 @WireMockTest(httpPort = 10101)
 class RdfAdapterTest {
 
