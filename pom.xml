@@ -350,11 +350,6 @@
         <artifactId>guava</artifactId>
         <version>32.1.2-jre</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.jena</groupId>
-        <artifactId>jena-arq</artifactId>
-        <version>4.10.0</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
