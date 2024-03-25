@@ -27,12 +27,12 @@
             <artifactId>carml-converters-jena</artifactId>
             <version>${carml.version}</version>
         </dependency>
-        <!-- Limitation of CARML -->
-        <dependency>
-            <groupId>org.apache.jena</groupId>
-            <artifactId>jena-arq</artifactId>
-            <version>4.10.0</version>
-        </dependency>
+<!--        &lt;!&ndash; Limitation of CARML &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.jena</groupId>-->
+<!--            <artifactId>jena-arq</artifactId>-->
+<!--            <version>4.10.0</version>-->
+<!--        </dependency>-->
 
         <!-- Choose the resolvers to suit your need -->
         <dependency>
