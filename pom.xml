@@ -350,6 +350,16 @@
 
   <profiles>
     <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <!-- Op bamboo werden testen reeds in vorig jobs uitgevoerd -->
+        <skipTests>true</skipTests>
+      </properties>
+    </profile>
+    <profile>
       <id>owasp-dependency-check</id>
       <build>
         <plugins>
