@@ -88,7 +88,6 @@
     </sonar.coverage.jacoco.xmlReportPaths>
     <sonar.language>java</sonar.language>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.exclusions>**/*MBean.java</sonar.exclusions>
     <jacoco.version>0.8.10</jacoco.version>
 
     <!-- ACD Properties-->
@@ -120,6 +119,15 @@
           <artifactId>jdeb</artifactId>
           <version>${jdeb.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>META-INF/**/*</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -132,7 +140,7 @@
             <id>enforce</id>
             <configuration>
               <rules>
-                <dependencyConvergence />
+                <dependencyConvergence/>
                 <reactorModuleConvergence>
                   <ignoreModuleDependencies>true</ignoreModuleDependencies>
                 </reactorModuleConvergence>
