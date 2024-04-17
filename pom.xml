@@ -15,9 +15,9 @@
     <modules>
         <module>ldi-api</module>
         <module>ldi-core</module>
-        <module>ldi-orchestrator</module>
+<!--        <module>ldi-orchestrator</module>-->
         <module>ldi-nifi</module>
-        <module>ldi-extensions</module>
+<!--        <module>ldi-extensions</module>-->
     </modules>
 
     <developers>
@@ -404,18 +404,18 @@
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:Informatievlaanderen/VSDS-Linked-Data-Interactions.git</url>
+        <url>git@github.com:milieuinfo/VSDS-Linked-Data-Interactions.git </url>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>snapshot</id>
+            <url>https://repo.omgeving.vlaanderen.be/artifactory/snapshot</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>release</id>
+            <url>https://repo.omgeving.vlaanderen.be/artifactory/release</url>
         </repository>
     </distributionManagement>
 </project>
