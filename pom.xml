@@ -405,7 +405,7 @@
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:milieuinfo/VSDS-Linked-Data-Interactions.git </url>
+        <url>ssh://git@git.omgeving.vlaanderen.be:2222/git/data-platform/ldes/ldes-processors.git </url>
         <tag>HEAD</tag>
     </scm>
 
