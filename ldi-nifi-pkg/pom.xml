@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>be.vlaanderen.informatievlaanderen.ldes</groupId>
+    <artifactId>linked-data-interactions</artifactId>
+    <version>2.3.0.1-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>ldi-nifi-pkg</artifactId>
+  <name>LDI NiFi Processors</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi.nifi</groupId>
+      <artifactId>ldes-client-processor</artifactId>
+      <version>${project.version}</version>
+      <type>nar</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <includeEmptyDirs>true</includeEmptyDirs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-app</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi.nifi</groupId>
+              <artifactId>ldes-client-processor</artifactId>
+              <version>${project.version}</version>
+              <type>nar</type>
+              <outputDirectory>${project.build.directory}/classes/deb/root/opt/nifi-custom-nars
+              </outputDirectory>
+              <destFileName>ldes-client-processor.nar</destFileName>
+              <overWrite>true</overWrite>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.vafer</groupId>
+        <artifactId>jdeb</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <verbose>true</verbose>
+              <snapshotExpand>true</snapshotExpand>
+              <controlDir>${project.build.directory}/classes/deb/control</controlDir>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/classes/deb/root</src>
+                  <type>directory</type>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>deploy</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <executable>bash</executable>
+          <workingDirectory>${project.build.directory}</workingDirectory>
+          <arguments>
+            <argument>-c</argument>
+            <argument>curl ${acd.repository.debian.login} --silent -XPUT "${acd.repository.debian.post.url}" -T ${project.artifactId}_*.deb</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

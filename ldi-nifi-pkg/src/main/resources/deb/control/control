@@ -1,0 +1,7 @@
+Package: @project.artifactId@
+Version: @project.version@
+Architecture: all
+Priority: low
+Maintainer: Van Gulck, Tom <tom.vangulck@vlaanderen.be>
+Description: @project.name@
+Homepage: https://www.milieuinfo.be/jira
