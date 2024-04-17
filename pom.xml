@@ -185,6 +185,7 @@
                 <configuration>
                     <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                     <tagNameFormat>@{project.version}</tagNameFormat>
+                    <arguments>-DskipTests</arguments>
                 </configuration>
             </plugin>
 <!--            <plugin>-->
