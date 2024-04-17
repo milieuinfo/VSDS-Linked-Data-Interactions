@@ -50,7 +50,7 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+<!--        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>-->
         <unittestskip>false</unittestskip>
         <integrationtestskip>false</integrationtestskip>
 
@@ -96,11 +96,11 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>${maven-gpg-plugin.version}</version>
-                </plugin>
+<!--                <plugin>-->
+<!--                    <groupId>org.apache.maven.plugins</groupId>-->
+<!--                    <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                    <version>${maven-gpg-plugin.version}</version>-->
+<!--                </plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -187,25 +187,25 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>sign-artifacts</id>-->
+<!--                        <phase>deploy</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>sign</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <gpgArguments>-->
+<!--                                <arg>&#45;&#45;pinentry-mode</arg>-->
+<!--                                <arg>loopback</arg>-->
+<!--                            </gpgArguments>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
