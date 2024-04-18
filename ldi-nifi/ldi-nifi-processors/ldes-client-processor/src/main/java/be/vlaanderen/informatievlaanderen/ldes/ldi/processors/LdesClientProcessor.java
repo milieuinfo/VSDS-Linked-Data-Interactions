@@ -122,6 +122,7 @@ public class LdesClientProcessor extends AbstractProcessor {
 	}
 
 	private RequestExecutor getRequestExecutor(final ProcessContext context) {
+		requestExecutorFactory.setProxy(LdesProcessorProperties.getProxyHost(context), LdesProcessorProperties.getProxyPort(context));
 		return switch (getAuthorizationStrategy(context)) {
 			case NO_AUTH -> requestExecutorFactory.createNoAuthExecutor();
 			case API_KEY -> {

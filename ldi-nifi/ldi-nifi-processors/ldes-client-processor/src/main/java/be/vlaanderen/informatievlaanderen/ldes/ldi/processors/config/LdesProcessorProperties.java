@@ -2,6 +2,7 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config;
 
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.validators.RDFLanguageValidator;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.valueobjects.AuthStrategy;
+import java.util.regex.Pattern;
 import ldes.client.treenodesupplier.domain.valueobject.StatePersistenceStrategy;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
@@ -237,6 +238,22 @@ public final class LdesProcessorProperties {
 			.addValidator(StandardValidators.URI_VALIDATOR)
 			.build();
 
+	public static final PropertyDescriptor PROXY_HOST = new PropertyDescriptor.Builder()
+			.name("PROXY_HOST")
+			.displayName("Proxy host")
+			.description("Host to be used as proxy")
+			.required(false)
+			.addValidator(StandardValidators.NON_BLANK_VALIDATOR)
+			.build();
+
+	public static final PropertyDescriptor PROXY_PORT = new PropertyDescriptor.Builder()
+			.name("PROXY_PORT")
+			.displayName("Proxy port")
+			.description("Port used on proxy host")
+			.required(false)
+			.addValidator(StandardValidators.NON_BLANK_VALIDATOR)
+			.build();
+
 	public static List<String> getDataSourceUrl(final ProcessContext context) {
 		var urls = Arrays.stream(context.getProperty(DATA_SOURCE_URLS).getValue().split(","))
 				.map(String::trim)
@@ -351,6 +368,14 @@ public final class LdesProcessorProperties {
 
 	public static String getVersionOfProperty(final ProcessContext context) {
 		return context.getProperty(VERSION_OF_PROPERTY).getValue();
+	}
+
+	public static String getProxyHost(final ProcessContext context) {
+		return context.getProperty(PROXY_HOST).getValue();
+	}
+
+	public static Integer getProxyPort(final ProcessContext context) {
+		return context.getProperty(PROXY_PORT).asInteger();
 	}
 
 	private static boolean isValidUrl(String url) {
