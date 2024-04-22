@@ -237,6 +237,13 @@ public final class LdesProcessorProperties {
 			.addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
 			.addValidator(StandardValidators.URI_VALIDATOR)
 			.build();
+	public static final PropertyDescriptor USE_EXACTLY_ONCE_FILTER = new PropertyDescriptor.Builder()
+			.name("USE_EXACTLY_ONCE_FILTER")
+			.displayName("Use filter so members are outputted exactly once")
+			.required(false)
+			.addValidator(StandardValidators.BOOLEAN_VALIDATOR)
+			.defaultValue(TRUE.toString())
+			.build();
 
 	public static final PropertyDescriptor PROXY_HOST = new PropertyDescriptor.Builder()
 			.name("PROXY_HOST")
@@ -360,6 +367,9 @@ public final class LdesProcessorProperties {
 
 	public static boolean useVersionMaterialisation(final ProcessContext context) {
 		return TRUE.equals(context.getProperty(USE_VERSION_MATERIALISATION).asBoolean());
+	}
+	public static boolean useExactlyOnceFilter(final ProcessContext context) {
+		return TRUE.equals(context.getProperty(USE_EXACTLY_ONCE_FILTER).asBoolean()) && !useVersionMaterialisation(context);
 	}
 
 	public static boolean restrictToMembers(final ProcessContext context) {
