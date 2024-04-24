@@ -8,6 +8,7 @@ import ldes.client.treenodefetcher.domain.valueobjects.MutabilityStatus;
 import ldes.client.treenodefetcher.domain.valueobjects.TreeNodeRequest;
 import ldes.client.treenodefetcher.domain.valueobjects.TreeNodeResponse;
 import org.apache.http.HttpHeaders;
+import org.apache.jena.http.HttpEnv;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFParser;
 
@@ -47,6 +48,9 @@ public class TreeNodeFetcher {
 
 	private TreeNodeResponse createOkResponse(TreeNodeRequest treeNodeRequest, Response response) {
 		final InputStream responseBody = response.getBody().map(ByteArrayInputStream::new).orElseThrow();
+
+		System.out.println(HttpEnv.getDftHttpClient().proxy().get().select())
+
 		final Model model = RDFParser.source(responseBody).forceLang(treeNodeRequest.getLang()).base(treeNodeRequest.getTreeNodeUrl()).toModel();
 		final ModelResponse modelResponse = new ModelResponse(model, timestampExtractor);
 		final MutabilityStatus mutabilityStatus = getMutabilityStatus(response);
