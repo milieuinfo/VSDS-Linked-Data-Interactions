@@ -3,6 +3,13 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.services;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.domain.valueobjects.LdesProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.RequestExecutor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.valueobjects.Response;
+import com.apicatalog.jsonld.JsonLdOptions;
+import com.apicatalog.jsonld.loader.DocumentLoader;
+import com.apicatalog.jsonld.loader.HttpLoader;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import ldes.client.startingtreenode.RedirectRequestExecutor;
 import ldes.client.startingtreenode.domain.valueobjects.RedirectHistory;
 import ldes.client.startingtreenode.domain.valueobjects.StartingNodeRequest;
@@ -13,8 +20,10 @@ import org.apache.jena.riot.RDFParser;
 
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
+import org.apache.jena.sparql.util.Context;
 
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
+import static org.apache.jena.riot.lang.LangJSONLD11.JSONLD_OPTIONS;
 
 public class LdesPropertiesExtractor {
 
@@ -49,13 +58,26 @@ public class LdesPropertiesExtractor {
 	}
 
 	private Model getModelFromStartingTreeNode(String url, Lang lang) {
+		ProxySelector proxySelector = ProxySelector.of(
+				InetSocketAddress.createUnresolved("forwardproxy-on.lb.cumuli.be", 3128));
+		HttpClient httpClient = HttpClient.newBuilder()
+				.connectTimeout(Duration.ofSeconds(10))
+				.proxy(proxySelector)
+				.followRedirects(HttpClient.Redirect.ALWAYS)
+				.build();
+
+		DocumentLoader documentLoader = new HttpLoader(httpClient);
+
+		JsonLdOptions options = new JsonLdOptions();
+		options.setDocumentLoader(documentLoader);
 		RedirectRequestExecutor redirectRequestExecutor = new RedirectRequestExecutor(requestExecutor);
 		Response response = redirectRequestExecutor
 				.execute(new StartingNodeRequest(url, lang, new RedirectHistory()));
 
 		return RDFParser
 				.source(response.getBody().map(ByteArrayInputStream::new).orElseThrow())
-				.lang(lang)
+				.lang(lang).context(
+				Context.create().set(JSONLD_OPTIONS,options))
 				.build()
 				.toModel();
 	}
