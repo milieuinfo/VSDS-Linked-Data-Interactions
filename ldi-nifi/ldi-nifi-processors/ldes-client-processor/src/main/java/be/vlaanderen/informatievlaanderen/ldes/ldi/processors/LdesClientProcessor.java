@@ -191,6 +191,8 @@ public class LdesClientProcessor extends AbstractProcessor {
 		if (streamShapeProperty(context)) {
 			session.putAttribute(flowFile, "ldes.shacleshapes", ldesProperties.getShape());
 		}
+		session.putAttribute(flowFile,"ldes.member_id", memberRecord.getId());
+
 		Lang dataDestinationFormat = LdesProcessorProperties.getDataDestinationFormat(context);
 		FlowManager.sendRDFToRelation(session, flowFile,
 				convertModelToString(memberRecord.getModel(), dataDestinationFormat),
