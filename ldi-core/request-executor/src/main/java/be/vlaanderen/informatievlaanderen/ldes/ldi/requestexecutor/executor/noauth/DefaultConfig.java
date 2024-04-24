@@ -2,10 +2,11 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.noa
 
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.RequestExecutor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.RequestExecutorSupplier;
-import java.util.Collection;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.HttpClientBuilder;
+
+import java.util.Collection;
 
 public class DefaultConfig implements RequestExecutorSupplier {
 

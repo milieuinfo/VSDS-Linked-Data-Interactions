@@ -13,6 +13,8 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampE
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromCurrentTimeExtractor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromPathExtractor;
 import io.github.resilience4j.retry.Retry;
+import ldes.client.treenodesupplier.ExactlyOnceFilter;
+import ldes.client.treenodesupplier.ExactlyOnceFilterMemberSupplier;
 import ldes.client.treenodesupplier.MemberSupplier;
 import ldes.client.treenodesupplier.MemberSupplierImpl;
 import ldes.client.treenodesupplier.TreeNodeProcessor;
@@ -81,6 +83,14 @@ public class LdesClientProcessor extends AbstractProcessor {
 
 	@OnScheduled
 	public void onScheduled(final ProcessContext context) {
+
+		if (getProxyHost(context) != null && getProxyPort(context) != null) {
+			System.setProperty("http.proxyHost", getProxyHost(context));
+			System.setProperty("https.proxyHost", getProxyHost(context));
+			System.setProperty("http.proxyPort", getProxyPort(context).toString());
+			System.setProperty("https.proxyHost", getProxyPort(context).toString());
+		}
+
 		List<String> dataSourceUrls = LdesProcessorProperties.getDataSourceUrl(context);
 		Lang dataSourceFormat = LdesProcessorProperties.getDataSourceFormat(context);
 		final RequestExecutor requestExecutor = getRequestExecutorWithPossibleRetry(context);

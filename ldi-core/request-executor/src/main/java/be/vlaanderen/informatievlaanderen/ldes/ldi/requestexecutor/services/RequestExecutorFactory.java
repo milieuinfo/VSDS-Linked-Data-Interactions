@@ -6,7 +6,6 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.edc.
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.edc.services.TokenService;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.edc.valueobjects.EdcUrlProxy;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.noauth.DefaultConfig;
-import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.noauth.DefaultRequestExecutor;
 import org.apache.http.Header;
 
 import java.util.ArrayList;
