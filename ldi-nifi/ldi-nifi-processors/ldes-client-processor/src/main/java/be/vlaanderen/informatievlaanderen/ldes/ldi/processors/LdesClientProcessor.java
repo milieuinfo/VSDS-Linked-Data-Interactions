@@ -84,12 +84,12 @@ public class LdesClientProcessor extends AbstractProcessor {
 	@OnScheduled
 	public void onScheduled(final ProcessContext context) {
 
-//		if (getProxyHost(context) != null && getProxyPort(context) != null) {
-//			System.setProperty("http.proxyHost", getProxyHost(context));
-//			System.setProperty("https.proxyHost", getProxyHost(context));
-//			System.setProperty("http.proxyPort", getProxyPort(context).toString());
-//			System.setProperty("https.proxyHost", getProxyPort(context).toString());
-//		}
+		if (getProxyHost(context) != null && getProxyPort(context) != null) {
+			System.setProperty("http.proxyHost", getProxyHost(context));
+			System.setProperty("https.proxyHost", getProxyHost(context));
+			System.setProperty("http.proxyPort", getProxyPort(context).toString());
+			System.setProperty("https.proxyHost", getProxyPort(context).toString());
+		}
 
 		List<String> dataSourceUrls = LdesProcessorProperties.getDataSourceUrl(context);
 		Lang dataSourceFormat = LdesProcessorProperties.getDataSourceFormat(context);
