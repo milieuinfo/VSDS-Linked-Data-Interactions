@@ -13,10 +13,6 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampE
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromCurrentTimeExtractor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromPathExtractor;
 import io.github.resilience4j.retry.Retry;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import ldes.client.treenodesupplier.ExactlyOnceFilter;
 import ldes.client.treenodesupplier.ExactlyOnceFilterMemberSupplier;
 import ldes.client.treenodesupplier.MemberSupplier;
@@ -49,6 +45,10 @@ import org.apache.nifi.processor.exception.ProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -88,8 +88,7 @@ public class LdesClientProcessor extends AbstractProcessor {
 
 	@OnScheduled
 	public void onScheduled(final ProcessContext context) {
-		ProxySelector proxySelector = ProxySelector.of(
-				InetSocketAddress.createUnresolved(getProxyHost(context), getProxyPort(context)));
+		ProxySelector proxySelector = ProxySelector.of(InetSocketAddress.createUnresolved(getProxyHost(context), getProxyPort(context)));
 		HttpClient httpClient = HttpClient.newBuilder()
 				.connectTimeout(Duration.ofSeconds(10))
 				.proxy(proxySelector)
