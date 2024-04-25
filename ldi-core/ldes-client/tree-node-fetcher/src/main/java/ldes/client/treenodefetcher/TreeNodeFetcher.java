@@ -49,6 +49,8 @@ public class TreeNodeFetcher {
 	private TreeNodeResponse createOkResponse(TreeNodeRequest treeNodeRequest, Response response) {
 		final InputStream responseBody = response.getBody().map(ByteArrayInputStream::new).orElseThrow();
 
+		System.out.println(HttpEnv.getDftHttpClient().proxy().get().select())
+
 		final Model model = RDFParser.source(responseBody).forceLang(treeNodeRequest.getLang()).base(treeNodeRequest.getTreeNodeUrl()).toModel();
 		final ModelResponse modelResponse = new ModelResponse(model, timestampExtractor);
 		final MutabilityStatus mutabilityStatus = getMutabilityStatus(response);
