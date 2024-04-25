@@ -1,27 +1,12 @@
 package ldes.client.startingtreenode;
 
-import static org.apache.jena.riot.lang.LangJSONLD11.JSONLD_OPTIONS;
-
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.RequestExecutor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.valueobjects.Response;
-import com.apicatalog.jsonld.JsonLdError;
-import com.apicatalog.jsonld.JsonLdOptions;
-import com.apicatalog.jsonld.document.Document;
-import com.apicatalog.jsonld.loader.DocumentLoader;
-import com.apicatalog.jsonld.loader.DocumentLoaderOptions;
-import com.apicatalog.jsonld.loader.HttpLoader;
-import jakarta.json.Json;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import ldes.client.startingtreenode.domain.valueobjects.*;
 import ldes.client.startingtreenode.exception.StartingNodeNotFoundException;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFParser;
-import org.apache.jena.sparql.util.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,21 +40,7 @@ public class StartingTreeNodeFinder {
 	}
 
 	private Model getModelFromResponse(Lang lang, byte[] responseBody, String baseUrl) {
-		ProxySelector proxySelector = ProxySelector.of(
-				InetSocketAddress.createUnresolved("forwardproxy-on.lb.cumuli.be", 3128));
-		HttpClient httpClient = HttpClient.newBuilder()
-				.connectTimeout(Duration.ofSeconds(10))
-				.proxy(proxySelector)
-				.followRedirects(HttpClient.Redirect.ALWAYS)
-				.build();
-
-		DocumentLoader documentLoader = new HttpLoader(httpClient);
-
-		JsonLdOptions options = new JsonLdOptions();
-		options.setDocumentLoader(documentLoader);
-
-		return RDFParser.source(new ByteArrayInputStream(responseBody)).lang(lang).base(baseUrl).context(
-				Context.create().set(JSONLD_OPTIONS,options)).build().toModel();
+		return RDFParser.source(new ByteArrayInputStream(responseBody)).lang(lang).base(baseUrl).build().toModel();
 	}
 
 	private StartingTreeNode selectStartingNode(StartingNodeRequest startingNodeRequest, Model model) {

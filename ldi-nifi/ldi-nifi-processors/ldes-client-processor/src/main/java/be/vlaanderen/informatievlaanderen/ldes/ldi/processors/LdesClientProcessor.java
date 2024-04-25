@@ -13,12 +13,8 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampE
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromCurrentTimeExtractor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromPathExtractor;
 import io.github.resilience4j.retry.Retry;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.ProxySelector;
-import java.net.SocketAddress;
-import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import ldes.client.treenodesupplier.ExactlyOnceFilter;
@@ -92,15 +88,15 @@ public class LdesClientProcessor extends AbstractProcessor {
 
 	@OnScheduled
 	public void onScheduled(final ProcessContext context) {
-//		ProxySelector proxySelector = ProxySelector.of(
-//				InetSocketAddress.createUnresolved(getProxyHost(context), getProxyPort(context)));
-//		HttpClient httpClient = HttpClient.newBuilder()
-//				.connectTimeout(Duration.ofSeconds(10))
-//				.proxy(proxySelector)
-//				.followRedirects(HttpClient.Redirect.ALWAYS)
-//				.build();
-//
-//		HttpEnv.setDftHttpClient(httpClient);
+		ProxySelector proxySelector = ProxySelector.of(
+				InetSocketAddress.createUnresolved(getProxyHost(context), getProxyPort(context)));
+		HttpClient httpClient = HttpClient.newBuilder()
+				.connectTimeout(Duration.ofSeconds(10))
+				.proxy(proxySelector)
+				.followRedirects(HttpClient.Redirect.ALWAYS)
+				.build();
+
+		HttpEnv.setDftHttpClient(httpClient);
 
 		List<String> dataSourceUrls = LdesProcessorProperties.getDataSourceUrl(context);
 		Lang dataSourceFormat = LdesProcessorProperties.getDataSourceFormat(context);
