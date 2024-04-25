@@ -25,7 +25,6 @@ import ldes.client.treenodesupplier.domain.valueobject.StatePersistence;
 import ldes.client.treenodesupplier.domain.valueobject.SuppliedMember;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.apache.jena.http.HttpEnv;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFWriter;
@@ -45,10 +44,6 @@ import org.apache.nifi.processor.exception.ProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -88,14 +83,13 @@ public class LdesClientProcessor extends AbstractProcessor {
 
 	@OnScheduled
 	public void onScheduled(final ProcessContext context) {
-		ProxySelector proxySelector = ProxySelector.of(InetSocketAddress.createUnresolved(getProxyHost(context), getProxyPort(context)));
-		HttpClient httpClient = HttpClient.newBuilder()
-				.connectTimeout(Duration.ofSeconds(10))
-				.proxy(proxySelector)
-				.followRedirects(HttpClient.Redirect.ALWAYS)
-				.build();
 
-		HttpEnv.setDftHttpClient(httpClient);
+		if (getProxyHost(context) != null && getProxyPort(context) != null) {
+			System.setProperty("http.proxyHost", getProxyHost(context));
+			System.setProperty("https.proxyHost", getProxyHost(context));
+			System.setProperty("http.proxyPort", getProxyPort(context).toString());
+			System.setProperty("https.proxyPort", getProxyPort(context).toString());
+		}
 
 		List<String> dataSourceUrls = LdesProcessorProperties.getDataSourceUrl(context);
 		Lang dataSourceFormat = LdesProcessorProperties.getDataSourceFormat(context);
