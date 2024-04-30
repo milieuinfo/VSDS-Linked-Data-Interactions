@@ -4,6 +4,7 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.VersionMaterialiser;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.domain.valueobjects.LdesProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager;
+import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.util.HttpUtils;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.RequestExecutor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.executor.retry.RetryConfig;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.requestexecutor.services.RequestExecutorDecorator;
@@ -13,6 +14,8 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampE
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromCurrentTimeExtractor;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampFromPathExtractor;
 import io.github.resilience4j.retry.Retry;
+import java.util.ArrayList;
+import java.util.Collection;
 import ldes.client.treenodesupplier.ExactlyOnceFilter;
 import ldes.client.treenodesupplier.ExactlyOnceFilterMemberSupplier;
 import ldes.client.treenodesupplier.MemberSupplier;
@@ -34,6 +37,8 @@ import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.annotation.lifecycle.OnRemoved;
 import org.apache.nifi.annotation.lifecycle.OnScheduled;
 import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.components.ValidationContext;
+import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.state.Scope;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.processor.AbstractProcessor;
@@ -41,6 +46,7 @@ import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
+import org.hibernate.proxy.ProxyConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,10 +84,18 @@ public class LdesClientProcessor extends AbstractProcessor {
 				API_KEY_HEADER_PROPERTY, OAUTH_SCOPE,
 				API_KEY_PROPERTY, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_TOKEN_ENDPOINT, AUTHORIZATION_STRATEGY,
 				RETRIES_ENABLED, MAX_RETRIES, STATUSES_TO_RETRY, POSTGRES_URL, POSTGRES_USERNAME, POSTGRES_PASSWORD,
-				USE_VERSION_MATERIALISATION, RESTRICT_TO_MEMBERS, VERSION_OF_PROPERTY, USE_EXACTLY_ONCE_FILTER, PROXY_HOST, PROXY_PORT);
+				USE_VERSION_MATERIALISATION, RESTRICT_TO_MEMBERS, VERSION_OF_PROPERTY, USE_EXACTLY_ONCE_FILTER, HttpUtils.PROXY_CONFIGURATION_SERVICE, PROXY_HOST, PROXY_PORT);
 	}
 
-	@OnScheduled
+	@Override
+	protected Collection<ValidationResult> customValidate(final ValidationContext validationContext) {
+		final Collection<ValidationResult> results = new ArrayList<>();
+		HttpUtils.validateProxyProperties(validationContext, results);
+		return results;
+	}
+
+
+		@OnScheduled
 	public void onScheduled(final ProcessContext context) {
 		List<String> dataSourceUrls = LdesProcessorProperties.getDataSourceUrl(context);
 		Lang dataSourceFormat = LdesProcessorProperties.getDataSourceFormat(context);

@@ -17,6 +17,12 @@
       <version>${project.version}</version>
       <type>nar</type>
     </dependency>
+    <dependency>
+      <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi.nifi</groupId>
+      <artifactId>sparql-interactions-processor</artifactId>
+      <version>${project.version}</version>
+      <type>nar</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -57,6 +63,16 @@
               <outputDirectory>${project.build.directory}/classes/deb/root/opt/nifi-custom-nars
               </outputDirectory>
               <destFileName>ldes-client-processor.nar</destFileName>
+              <overWrite>true</overWrite>
+            </artifactItem>
+            <artifactItem>
+              <groupId>be.vlaanderen.informatievlaanderen.ldes.ldi.nifi</groupId>
+              <artifactId>sparql-interactions-processor</artifactId>
+              <version>${project.version}</version>
+              <type>nar</type>
+              <outputDirectory>${project.build.directory}/classes/deb/root/opt/nifi-custom-nars
+              </outputDirectory>
+              <destFileName>sparql-interactions-processor.nar</destFileName>
               <overWrite>true</overWrite>
             </artifactItem>
           </artifactItems>
