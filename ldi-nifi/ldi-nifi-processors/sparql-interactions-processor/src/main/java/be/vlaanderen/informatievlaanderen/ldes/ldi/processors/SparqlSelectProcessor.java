@@ -2,6 +2,7 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.processors;
 
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectService;
+import com.google.gson.JsonElement;
 import org.apache.jena.rdf.model.Model;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
@@ -16,11 +17,13 @@ import org.apache.nifi.processor.Relationship;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gson.JsonElement;
-
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.DATA_SOURCE_FORMAT;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.OUTPUT_NULL_VALUES;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.*;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.FAILURE;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.receiveDataAsModel;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.sendRDFToRelation;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 @SuppressWarnings("java:S2160") // nifi handles equals/hashcode of processors
@@ -37,7 +40,7 @@ public class SparqlSelectProcessor extends AbstractProcessor {
 
 	@Override
 	public final List<PropertyDescriptor> getSupportedPropertyDescriptors() {
-		return List.of(SPARQL_SELECT_QUERY, DATA_SOURCE_FORMAT);
+		return List.of(SPARQL_SELECT_QUERY, DATA_SOURCE_FORMAT, OUTPUT_NULL_VALUES);
 	}
 
 	@OnScheduled
@@ -54,8 +57,9 @@ public class SparqlSelectProcessor extends AbstractProcessor {
 						SparqlProcessorProperties.getDataSourceFormat(context));
 
 				String queryString = context.getProperty(SPARQL_SELECT_QUERY).evaluateAttributeExpressions(flowFile).getValue();
+				Boolean outputNullValues = context.getProperty(OUTPUT_NULL_VALUES).asBoolean();
 
-				final Iterable<JsonElement> queryResult = sparqlSelectService.executeSelect(inputModel, queryString);
+				final Iterable<JsonElement> queryResult = sparqlSelectService.executeSelect(inputModel, queryString, outputNullValues);
 
 				sendRDFToRelation(session, flowFile, queryResult.toString(), SUCCESS, APPLICATION_JSON.getMimeType());
 			} catch (Exception e) {

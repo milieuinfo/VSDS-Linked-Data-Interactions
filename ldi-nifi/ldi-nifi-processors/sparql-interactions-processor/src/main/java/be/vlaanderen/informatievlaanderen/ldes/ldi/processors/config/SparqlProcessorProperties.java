@@ -33,6 +33,15 @@ public class SparqlProcessorProperties {
 			.addValidator(StandardValidators.NON_EMPTY_EL_VALIDATOR)
 			.build();
 
+	public static final PropertyDescriptor OUTPUT_NULL_VALUES = new PropertyDescriptor.Builder()
+			.name("OUTPUT_NULL_VALUES")
+			.displayName("Output null values")
+			.description("Output named variables in the select query that are not present in a query solution as null values in the resulting json.")
+			.required(true)
+			.defaultValue(Boolean.TRUE.toString())
+			.addValidator(StandardValidators.BOOLEAN_VALIDATOR)
+			.build();
+
 	public static final PropertyDescriptor INCLUDE_ORIGINAL = new PropertyDescriptor.Builder()
 			.name("INCLUDE_ORIGINAL")
 			.displayName("Include original model")
