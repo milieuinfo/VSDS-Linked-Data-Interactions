@@ -52,8 +52,7 @@ public class SparqlSelectProcessor extends AbstractProcessor {
 			try {
 				Model inputModel = receiveDataAsModel(session, flowFile,
 						SparqlProcessorProperties.getDataSourceFormat(context));
-
-				String queryString = context.getProperty(SPARQL_SELECT_QUERY).evaluateAttributeExpressions(flowFile).getValue();
+				String queryString = context.getProperty(SPARQL_SELECT_QUERY).getValue();
 
 				final Iterable<JsonElement> queryResult = sparqlSelectService.executeSelect(inputModel, queryString);
 

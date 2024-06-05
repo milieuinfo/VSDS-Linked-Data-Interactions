@@ -3,7 +3,6 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.nifi.components.PropertyDescriptor;
-import org.apache.nifi.expression.ExpressionLanguageScope;
 import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.util.StandardValidators;
 
@@ -29,8 +28,7 @@ public class SparqlProcessorProperties {
 			.displayName("SPARQL Select Query")
 			.required(true)
 			.defaultValue("SELECT ?subject ?predicate ?object WHERE {?subject ?predicate ?object}")
-			.expressionLanguageSupported(ExpressionLanguageScope.FLOWFILE_ATTRIBUTES)
-			.addValidator(StandardValidators.NON_EMPTY_EL_VALIDATOR)
+			.addValidator(StandardValidators.NON_EMPTY_VALIDATOR)
 			.build();
 
 	public static final PropertyDescriptor INCLUDE_ORIGINAL = new PropertyDescriptor.Builder()
