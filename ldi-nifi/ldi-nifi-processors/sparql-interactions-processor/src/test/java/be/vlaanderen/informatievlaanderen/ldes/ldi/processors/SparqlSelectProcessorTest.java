@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.OUTPUT_NULL_VALUES;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.FAILURE;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
@@ -73,6 +74,7 @@ class SparqlSelectProcessorTest {
 	@Test
 	void testFailFlow() throws Exception {
 		testRunner.setProperty(SPARQL_SELECT_QUERY, "INVALID QUERY");
+		testRunner.setProperty(OUTPUT_NULL_VALUES, Boolean.FALSE.toString());
 		testRunner.enqueue(fileNameToFile("people_data.nq").toPath());
 
 		testRunner.run();
@@ -84,6 +86,7 @@ class SparqlSelectProcessorTest {
 	private void testSuccessFlow(String selectQuery, String inputFileName, String expectedResultFileName)
 			throws Exception {
 		testRunner.setProperty(SPARQL_SELECT_QUERY, selectQuery);
+		testRunner.setProperty(OUTPUT_NULL_VALUES, Boolean.FALSE.toString());
 		testRunner.enqueue(fileNameToFile(inputFileName).toPath());
 
 		testRunner.run();
