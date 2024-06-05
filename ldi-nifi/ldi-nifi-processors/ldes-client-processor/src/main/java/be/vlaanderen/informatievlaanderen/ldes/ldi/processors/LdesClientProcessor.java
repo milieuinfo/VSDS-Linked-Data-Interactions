@@ -1,9 +1,5 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors;
 
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorProperties.*;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorRelationships.DATA_RELATIONSHIP;
-import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
-
 import be.vlaanderen.informatievlaanderen.ldes.ldi.VersionMaterialiser;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.domain.valueobjects.LdesProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorProperties;
@@ -20,8 +16,6 @@ import be.vlaanderen.informatievlaanderen.ldes.ldi.timestampextractor.TimestampF
 import io.github.resilience4j.retry.Retry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import ldes.client.treenodesupplier.ExactlyOnceFilter;
 import ldes.client.treenodesupplier.ExactlyOnceFilterMemberSupplier;
 import ldes.client.treenodesupplier.MemberSupplier;
@@ -52,8 +46,16 @@ import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
+import org.hibernate.proxy.ProxyConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Set;
+
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorProperties.*;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorRelationships.DATA_RELATIONSHIP;
+import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 
 @SuppressWarnings("java:S2160") // nifi handles equals/hashcode of processors
 @Tags({ "ldes-client", "vsds" })
@@ -62,16 +64,12 @@ import org.slf4j.LoggerFactory;
 public class LdesClientProcessor extends AbstractProcessor {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LdesClientProcessor.class);
-	private final RequestExecutorFactory requestExecutorFactory = new RequestExecutorFactory();
-	private final StatePersistenceFactory statePersistenceFactory = new StatePersistenceFactory();
 	private MemberSupplier memberSupplier;
 	private LdesProperties ldesProperties;
+	private final RequestExecutorFactory requestExecutorFactory = new RequestExecutorFactory();
+	private final StatePersistenceFactory statePersistenceFactory = new StatePersistenceFactory();
 	private boolean hasLdesEnded;
 	private boolean keepState;
-
-	public static String convertModelToString(Model model, Lang dataDestinationFormat) {
-		return RDFWriter.source(model).lang(dataDestinationFormat).asString();
-	}
 
 	@Override
 	public Set<Relationship> getRelationships() {
@@ -95,6 +93,7 @@ public class LdesClientProcessor extends AbstractProcessor {
 		HttpUtils.validateProxyProperties(validationContext, results);
 		return results;
 	}
+
 
 		@OnScheduled
 	public void onScheduled(final ProcessContext context) {
@@ -211,6 +210,10 @@ public class LdesClientProcessor extends AbstractProcessor {
 		if (!keepState && memberSupplier != null) {
 			memberSupplier.destroyState();
 		}
+	}
+
+	public static String convertModelToString(Model model, Lang dataDestinationFormat) {
+		return RDFWriter.source(model).lang(dataDestinationFormat).asString();
 	}
 
 }
