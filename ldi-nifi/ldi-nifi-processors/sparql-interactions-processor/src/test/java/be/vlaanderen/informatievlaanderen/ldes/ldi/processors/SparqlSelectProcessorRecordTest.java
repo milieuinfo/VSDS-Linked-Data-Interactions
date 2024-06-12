@@ -104,7 +104,7 @@ public class SparqlSelectProcessorRecordTest {
         testRunner = TestRunners.newTestRunner(SparqlSelectProcessorRecord.class);
     }
 
-    //    @Test
+//    @Test
     void testSuccessFlowCsv() throws Exception {
         CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
@@ -116,7 +116,7 @@ public class SparqlSelectProcessorRecordTest {
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
     }
 
-//    @Test
+    //    @Test
     void testSuccessFlowXml() throws Exception {
         XMLRecordSetWriter recordSetWriter = new XMLRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Map.of("root_tag_name", "results", "record_tag_name", "result"), "data_test2.ttl");
@@ -164,7 +164,7 @@ public class SparqlSelectProcessorRecordTest {
         System.out.print(result.getContent());
     }
 
-    @Test
+        @Test
     void testSuccessFlowParquetInput() throws Exception {
         CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
         ParquetReader recordReader = new ParquetReader();

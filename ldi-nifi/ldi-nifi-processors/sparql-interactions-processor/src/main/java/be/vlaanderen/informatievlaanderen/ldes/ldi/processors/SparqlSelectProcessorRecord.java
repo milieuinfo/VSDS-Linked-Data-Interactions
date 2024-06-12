@@ -59,7 +59,9 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.Fl
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
 
 /**
- *
+// * TODO Extra relation voor empty output
+// * TODO Configure custom recordschema and implement mapping from sparql query solutions to records
+// * TODO Refactoring
  */
 @Tags({"ldes, rdf, SPARQL, record, select"})
 @InputRequirement(InputRequirement.Requirement.INPUT_REQUIRED)

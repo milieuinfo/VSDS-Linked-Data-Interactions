@@ -1,0 +1,50 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/ns/terms#> .
+@prefix ex-id: <http://example.org/id/> .
+
+<http://example.org/id/ex1> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1"@nl ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50-01:00"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100 ;
+                            ex:number3 "100E2"^^xsd:double ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "NaN"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean false ;
+                            ex:unknowndatatype "some lexicalform"^^<http://example.org/ns/terms#customdatatype> ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex2> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50+01:00"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "-INF"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex3> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "100.456"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
