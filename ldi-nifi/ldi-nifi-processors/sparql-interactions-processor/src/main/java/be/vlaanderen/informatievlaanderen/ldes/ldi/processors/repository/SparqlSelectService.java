@@ -1,19 +1,25 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository;
 
-import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.apache.jena.rdf.model.Resource;
 
 public class SparqlSelectService {
+    public static ResultSet executeSelectTest(Model inputModel, String queryString) {
+        final Query query = QueryFactory.create(queryString);
+        try (QueryExecution queryExecution = QueryExecutionFactory.create(query, inputModel)) {
+            ResultSet resultSet = queryExecution.execSelect();
+            return resultSet;
+        }
+    }
 
     public JsonArray executeSelect(Model inputModel, String queryString) {
         return executeSelect(inputModel, queryString, true);

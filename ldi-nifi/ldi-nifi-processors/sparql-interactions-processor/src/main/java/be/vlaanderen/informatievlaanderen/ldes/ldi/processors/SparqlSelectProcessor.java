@@ -2,7 +2,6 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.processors;
 
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties;
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectService;
-import com.google.gson.JsonElement;
 import org.apache.jena.rdf.model.Model;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
@@ -16,6 +15,8 @@ import org.apache.nifi.processor.Relationship;
 
 import java.util.List;
 import java.util.Set;
+
+import com.google.gson.JsonElement;
 
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.DATA_SOURCE_FORMAT;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.OUTPUT_NULL_VALUES;
@@ -54,7 +55,7 @@ public class SparqlSelectProcessor extends AbstractProcessor {
 		if (flowFile != null) {
 			try {
 				Model inputModel = receiveDataAsModel(session, flowFile,
-						SparqlProcessorProperties.getDataSourceFormat(context));
+						SparqlProcessorProperties.getDataSourceFormat(context,flowFile));
 
 				String queryString = context.getProperty(SPARQL_SELECT_QUERY).evaluateAttributeExpressions(flowFile).getValue();
 				Boolean outputNullValues = context.getProperty(OUTPUT_NULL_VALUES).asBoolean();
