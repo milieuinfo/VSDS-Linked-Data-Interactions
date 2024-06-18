@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.SparqlSelectProcessorRecord.REL_ORIGINAL;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.SparqlSelectRecordProcessor.REL_ORIGINAL;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.DATA_SOURCE_FORMAT;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RDF_PAYLOAD_FIELD;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_READER;
@@ -31,7 +31,7 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.Fl
 /**
  *
  */
-public class SparqlSelectProcessorRecordTest {
+public class SparqlSelectRecordProcessorTest {
     private TestRunner testRunner;
 
     private String selectQuery = "prefix ex:  <http://example.org/ns/terms#> \n" +
@@ -101,34 +101,34 @@ public class SparqlSelectProcessorRecordTest {
 
     @BeforeEach
     public void setUp() {
-        testRunner = TestRunners.newTestRunner(SparqlSelectProcessorRecord.class);
+        testRunner = TestRunners.newTestRunner(SparqlSelectRecordProcessor.class);
     }
 
-//    @Test
+    @Test
     void testSuccessFlowCsv() throws Exception {
         CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
     }
 
-    //    @Test
+        @Test
     void testSuccessFlowJson() throws Exception {
         JsonRecordSetWriter recordSetWriter = new JsonRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
     }
 
-    //    @Test
+        @Test
     void testSuccessFlowXml() throws Exception {
         XMLRecordSetWriter recordSetWriter = new XMLRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Map.of("root_tag_name", "results", "record_tag_name", "result"), "data_test2.ttl");
     }
 
-    //    @Test
+        @Test
     void testSuccessFlowAvro() throws Exception {
         AvroRecordSetWriter recordSetWriter = new AvroRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
     }
 
-    //    @Test
+        @Test
     void testSuccessFlowParquet() throws Exception {
         ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
         testSuccessFlow(selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Collections.emptyMap(), "data_test2.ttl");
