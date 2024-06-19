@@ -1,8 +1,5 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.util;
 
-import java.net.Proxy;
-import java.util.Collection;
-import java.util.Map;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -15,6 +12,10 @@ import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.util.StandardValidators;
 import org.apache.nifi.proxy.ProxyConfiguration;
 import org.apache.nifi.proxy.ProxySpec;
+
+import java.net.Proxy;
+import java.util.Collection;
+import java.util.Map;
 
 public class HttpUtils {
 
