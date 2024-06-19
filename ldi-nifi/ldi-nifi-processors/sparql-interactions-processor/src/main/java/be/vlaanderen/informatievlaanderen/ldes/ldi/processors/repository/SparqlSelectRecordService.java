@@ -164,23 +164,7 @@ public class SparqlSelectRecordService {
       }
 
       Literal literal = node.asLiteral();
-      Object literalValue = literal.getValue();
-      if (literalValue instanceof Number) {
-        // XSD numeric values are converted to Numbers and a correct representation.
-        // In case of float and double values this will be the decimal value with or without an
-        // exponent but the representation can differ from the original lexical form in the data.
-        // There are 3 special values: NaN, +Infinity, -Infinity
-        valueMap.put(varName, literal.getLexicalForm());
-      } else if (literalValue instanceof Boolean) {
-        valueMap.put(varName, literal.getLexicalForm());
-      } else {
-        //              jsonObject.addProperty(key, literal.getValue().toString()) is not correct.
-        // e.g. it does not work if the literal has a custom datatype (e.g. skos:notation)
-        // 				RDFDatatype literalDatatype = literal.getDatatype();
-        //				jsonObject.addProperty(key, literalDatatype.unparse(literal.getValue())); // this is
-        // ok, but it does convert datetimes with timezones to UTC (time zone Z)
-        valueMap.put(varName, literal.getLexicalForm());
-      }
+      valueMap.put(varName, literal.getValue());
     }
     return new MapRecord(recordSchema, valueMap);
   }
