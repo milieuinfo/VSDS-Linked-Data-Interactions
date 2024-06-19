@@ -9,7 +9,7 @@
     <groupId>be.vlaanderen.informatievlaanderen.ldes</groupId>
     <artifactId>linked-data-interactions</artifactId>
     <packaging>pom</packaging>
-    <version>2.3.0.3-SNAPSHOT</version>
+    <version>2.3.0.3</version>
 
     <modules>
         <module>ldi-api</module>
@@ -393,7 +393,7 @@
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
         <url>ssh://git@git.omgeving.vlaanderen.be:2222/git/data-platform/ldes/ldes-processors.git </url>
-        <tag>HEAD</tag>
+        <tag>release-2.3.0.3</tag>
     </scm>
 
     <distributionManagement>
