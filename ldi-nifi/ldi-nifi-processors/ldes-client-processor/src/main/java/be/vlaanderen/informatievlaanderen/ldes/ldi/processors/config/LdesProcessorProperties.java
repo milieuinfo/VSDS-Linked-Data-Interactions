@@ -91,6 +91,7 @@ public final class LdesProcessorProperties {
           .name("POSTGRES_PASSWORD")
           .displayName("Postgres database password")
           .description("Password used to connect to the postgres database")
+          .sensitive(true)
           .required(false)
           .addValidator(StandardValidators.NON_BLANK_VALIDATOR)
           .build();
