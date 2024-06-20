@@ -68,6 +68,7 @@
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-parquet-processors</artifactId>
       <version>${nifi.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
