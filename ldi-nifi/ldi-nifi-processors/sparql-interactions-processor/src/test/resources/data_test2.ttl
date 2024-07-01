@@ -35,6 +35,20 @@
                             ex:link <http://example.org/id/concept/a> ;
                             .
 
+<http://example.org/id/ex2> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50.5+01:00"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "-INF"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
 <http://example.org/id/ex3> a ex:Class1 ;
                             ex:id "ex1" ;
                             ex:title "Example 1" ;
@@ -44,6 +58,34 @@
                             ex:number2 100.456 ;
                             ex:integer "100"^^xsd:integer ;
                             ex:float "100.456"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex2> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50Z"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "-INF"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex2> a ex:Class1 ;
+                            ex:id "ex1" ;
+                            ex:title "Example 1" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50.5Z"^^xsd:dateTime ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "-INF"^^xsd:float ;
                             ex:decimal "100.456"^^xsd:decimal ;
                             ex:boolean true ;
                             ex:link <http://example.org/id/concept/a> ;

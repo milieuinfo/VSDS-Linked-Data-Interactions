@@ -1,6 +1,22 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository;
 
-import org.apache.commons.lang3.tuple.Pair;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -19,54 +35,45 @@ import org.apache.nifi.serialization.RecordSetWriter;
 import org.apache.nifi.serialization.RecordSetWriterFactory;
 import org.apache.nifi.serialization.SimpleRecordSchema;
 import org.apache.nifi.serialization.WriteResult;
+import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.MapRecord;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 public class SparqlSelectRecordService {
 
-  public static Pair<RecordSchema, List<Record>> getRecordsWithSchema(
-      byte[] incomingRecord, Lang rdfLang, String query) {
+  public static ResultSetRewindable getQueryResults(byte[] incomingRecord, Lang rdfLang, String query) {
     final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingRecord);
     Model model = RDFParser.source(byteArrayInputStream).lang(rdfLang).build().toModel();
-
-    return executeSelect(model, query, SparqlSelectRecordService::getSchemaRecordsListPair);
+    return executeSelect(model, query);
   }
 
   public static FlowFile writeRecords(
       ProcessSession session,
-      Pair<RecordSchema, List<Record>> firstRecords,
+      List<Record> firstRecords,
+      RecordSchema schema,
       RecordSetWriterFactory writerFactory,
       FlowFile original,
       ComponentLog logger)
       throws IOException, SchemaNotFoundException, MalformedRecordException {
-    return writeRecords(session, firstRecords, writerFactory, original, logger, null, null);
+    return writeRecords(session, firstRecords, schema, writerFactory, original, logger, null, null);
   }
 
   public static FlowFile writeRecords(
       ProcessSession session,
-      Pair<RecordSchema, List<Record>> firstRecords,
+      List<Record> firstRecords,
+      RecordSchema writeSchema,
       RecordSetWriterFactory writerFactory,
       FlowFile original,
       ComponentLog logger,
       RecordReader reader,
-      Function<Record, Pair<?, List<Record>>> queryRecordProvider)
+      Function<Record, List<Record>> queryRecordProvider)
       throws IOException, SchemaNotFoundException, MalformedRecordException {
 
     FlowFile resultingFlowFile = session.create(original);
-    RecordSchema writeSchema =
-        writerFactory.getSchema(original.getAttributes(), firstRecords.getLeft());
+
     Map<String, String> attributes = new HashMap<>();
     try (final OutputStream out = session.write(resultingFlowFile);
         final RecordSetWriter writer =
@@ -74,14 +81,14 @@ public class SparqlSelectRecordService {
 
       writer.beginRecordSet();
 
-      for (Record queryResult : firstRecords.getRight()) {
+      for (Record queryResult : firstRecords) {
         writer.write(queryResult);
       }
       if (reader != null && queryRecordProvider != null) {
         Record incomingRecord;
         while ((incomingRecord = reader.nextRecord()) != null) {
 
-          for (Record queryResult : queryRecordProvider.apply(incomingRecord).getRight()) {
+          for (Record queryResult : queryRecordProvider.apply(incomingRecord)) {
             writer.write(queryResult);
           }
         }
@@ -112,18 +119,15 @@ public class SparqlSelectRecordService {
     return writerFactory.createWriter(logger, writeSchema, out, transformed);
   }
 
-  public static Pair<RecordSchema, List<Record>> getSchemaRecordsListPair(ResultSet resultSet) {
-    RecordSchema recordSchema = deriveSchema(resultSet);
-    List<Record> records = toRecords(resultSet, recordSchema);
-    return Pair.of(recordSchema, records);
+  public static List<Record> getSchemaRecordsListPair(ResultSet resultSet, RecordSchema schema) {
+    List<Record> records = toRecords(resultSet, schema);
+    return records;
   }
 
-  public static <R> R executeSelect(
-      Model inputModel, String queryString, Function<ResultSet, R> transformResultSet) {
+  public static ResultSetRewindable executeSelect(Model inputModel, String queryString) {
     final Query query = QueryFactory.create(queryString);
     try (QueryExecution queryExecution = QueryExecutionFactory.create(query, inputModel)) {
-      ResultSet resultSet = queryExecution.execSelect();
-      return transformResultSet.apply(resultSet);
+      return (ResultSetRewindable) queryExecution.execSelect().materialise();
     }
   }
 
@@ -165,16 +169,50 @@ public class SparqlSelectRecordService {
       }
 
       Literal literal = node.asLiteral();
-      valueMap.put(varName, literal.getValue());
+
+      valueMap.put(varName, getValue(recordSchema, varName, literal));
     }
     return new MapRecord(recordSchema, valueMap);
   }
 
-  private static RecordSchema deriveSchema(ResultSet resultSet) {
-    List<RecordField> recordFields = new ArrayList<>();
-    for (String varName : resultSet.getResultVars()) {
-      recordFields.add(new RecordField(varName, RecordFieldType.STRING.getDataType()));
+  private static Object getValue(RecordSchema recordSchema, String varName, Literal literal) {
+    Optional<DataType> dataType = recordSchema.getDataType(varName);
+    if (dataType.isPresent() && dataType.get().equals(RecordFieldType.STRING.getDataType())) {
+      return literal.getLexicalForm();
     }
-    return new SimpleRecordSchema(recordFields);
+
+    if (dataType.isPresent() && (dataType.get().equals(RecordFieldType.DATE.getDataType()) || dataType.get().equals(RecordFieldType.TIMESTAMP.getDataType()))) {
+      Calendar calendar = ((XSDDateTime) literal.getValue()).asCalendar();
+      return calendar.getTimeInMillis();
+    }
+
+//    if (dataType.isPresent() && dataType.get().equals(RecordFieldType.DECIMAL.getDataType())) {
+//      return literal.getDouble();
+//    }
+
+    return literal.getValue();
+  }
+
+  public static RecordSchema deriveSchema(ResultSetRewindable resultSet) {
+    List<RecordField> fields = new ArrayList<>();
+    while (resultSet.hasNext()) {
+      QuerySolution qs = resultSet.next();
+      Iterator<String> it = qs.varNames();
+      while (it.hasNext()) {
+        String column = it.next();
+        RDFNode n = qs.get(column);
+
+        // STRING as default data type
+        DataType dt = RecordFieldType.STRING.getDataType();
+        if (n.isLiteral()) {
+          dt = RdfDatatypeMapper.getRecordType(n.asLiteral().getDatatype().getURI());
+        }
+        if (fields.stream().noneMatch(rf -> rf.getFieldName().equals(column))) {
+          fields.add(new RecordField(column, dt));
+        }
+      }
+    }
+    resultSet.reset();
+    return new SimpleRecordSchema(fields);
   }
 }

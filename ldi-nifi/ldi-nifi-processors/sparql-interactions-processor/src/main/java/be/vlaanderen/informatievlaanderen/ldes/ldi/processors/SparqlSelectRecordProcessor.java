@@ -1,7 +1,27 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors;
 
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.DATA_SOURCE_FORMAT;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RDF_PAYLOAD_FIELD;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_READER;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_WRITER;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.deriveSchema;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.getQueryResults;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.getSchemaRecordsListPair;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.writeRecords;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.FAILURE;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
+
 import be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties;
-import org.apache.commons.lang3.tuple.Pair;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.riot.Lang;
 import org.apache.nifi.annotation.behavior.InputRequirement;
 import org.apache.nifi.annotation.behavior.WritesAttribute;
@@ -14,30 +34,13 @@ import org.apache.nifi.processor.AbstractProcessor;
 import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.Relationship;
+import org.apache.nifi.schema.access.SchemaNotFoundException;
 import org.apache.nifi.serialization.RecordReader;
 import org.apache.nifi.serialization.RecordReaderFactory;
 import org.apache.nifi.serialization.RecordSetWriterFactory;
 import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.util.StopWatch;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.DATA_SOURCE_FORMAT;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RDF_PAYLOAD_FIELD;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_READER;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_WRITER;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.getRecordsWithSchema;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.writeRecords;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.FAILURE;
-import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
 
 /**
  * // * TODO Extra relation voor empty output // * TODO Configure custom recordschema and implement
@@ -152,30 +155,47 @@ public class SparqlSelectRecordProcessor extends AbstractProcessor {
 
       // Query the first record and derive the schema in case the record writer chooses to
       // inherit the record Schema from the record itself.
-
-      Pair<RecordSchema, List<Record>> firstRecords =
-          getRecordsWithSchema(
+      ResultSetRewindable firstResults =
+          getQueryResults(
               incomingRecord.getAsString(fieldname).getBytes(StandardCharsets.UTF_8),
               rdfLang,
               query);
-
-      if (firstRecords.getRight() == null || firstRecords.getRight().isEmpty()) {
-        return null;
+      while (!firstResults.hasNext()) {
+        incomingRecord = reader.nextRecord();
+        if (incomingRecord == null) {
+          return null;
+        }
+        firstResults =
+            getQueryResults(
+                incomingRecord.getAsString(fieldname).getBytes(StandardCharsets.UTF_8),
+                rdfLang,
+                query);
       }
 
+      RecordSchema writeSchema;
+      try {
+        writeSchema = writerFactory.getSchema(original.getAttributes(), null);
+      } catch (SchemaNotFoundException e) {
+        writeSchema = deriveSchema(firstResults);
+      }
+
+      RecordSchema finalWriteSchema = writeSchema;
       FlowFile resultingFlowFile =
           writeRecords(
               session,
-              firstRecords,
+              getSchemaRecordsListPair(firstResults, writeSchema),
+              writeSchema,
               writerFactory,
               original,
               getLogger(),
               reader,
               record ->
-                  getRecordsWithSchema(
-                      record.getAsString(fieldname).getBytes(StandardCharsets.UTF_8),
-                      rdfLang,
-                      query));
+                  getSchemaRecordsListPair(
+                      getQueryResults(
+                          record.getAsString(fieldname).getBytes(StandardCharsets.UTF_8),
+                          rdfLang,
+                          query),
+                      finalWriteSchema));
       session
           .getProvenanceReporter()
           .fork(
@@ -203,11 +223,19 @@ public class SparqlSelectRecordProcessor extends AbstractProcessor {
     ByteArrayOutputStream rdfStream = new ByteArrayOutputStream();
     session.exportTo(original, rdfStream);
 
-    Pair<RecordSchema, List<Record>> resultingRecords =
-        getRecordsWithSchema(rdfStream.toByteArray(), rdfLang, query);
+    ResultSetRewindable queryResults = getQueryResults(rdfStream.toByteArray(), rdfLang, query);
+
+    RecordSchema writeSchema;
+    try {
+      writeSchema = writerFactory.getSchema(original.getAttributes(), null);
+    } catch (SchemaNotFoundException e) {
+      writeSchema = deriveSchema(queryResults);
+    }
+
+    List<Record> resultingRecords = getSchemaRecordsListPair(queryResults, writeSchema);
 
     FlowFile resultingFlowFile =
-        writeRecords(session, resultingRecords, writerFactory, original, getLogger());
+        writeRecords(session, resultingRecords, writeSchema, writerFactory, original, getLogger());
     session
         .getProvenanceReporter()
         .fork(
