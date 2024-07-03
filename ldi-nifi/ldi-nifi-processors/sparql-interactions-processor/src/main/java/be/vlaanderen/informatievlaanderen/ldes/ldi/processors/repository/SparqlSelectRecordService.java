@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
+import org.apache.jena.datatypes.xsd.impl.XSDYearType;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -186,9 +188,17 @@ public class SparqlSelectRecordService {
       return calendar.getTimeInMillis();
     }
 
-//    if (dataType.isPresent() && dataType.get().equals(RecordFieldType.DECIMAL.getDataType())) {
-//      return literal.getDouble();
-//    }
+    if (dataType.isPresent() && dataType.get().equals(RecordFieldType.INT.getDataType())) {
+      if (literal.getDatatypeURI().equals(XSDDatatype.XSDgYear.getURI())) {
+        return ((XSDDateTime) literal.getValue()).getYears();
+      }
+      if (literal.getDatatypeURI().equals(XSDDatatype.XSDgMonth.getURI())) {
+        return ((XSDDateTime) literal.getValue()).getMonths();
+      }
+      if (literal.getDatatypeURI().equals(XSDDatatype.XSDgDay.getURI())) {
+        return ((XSDDateTime) literal.getValue()).getDays();
+      }
+    }
 
     return literal.getValue();
   }

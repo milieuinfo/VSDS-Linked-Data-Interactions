@@ -11,21 +11,33 @@ import static org.apache.nifi.json.JsonRecordSetWriter.ALLOW_SCIENTIFIC_NOTATION
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_ACCESS_STRATEGY;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT_PROPERTY;
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Year;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -72,6 +84,7 @@ public class SparqlSelectRecordProcessorTest {
           + "  optional {?subject  ex:id ?id. } \n"
           + "  optional {?subject  ex:date ?date. } \n"
           + "  optional {?subject  ex:datetime ?dateTime. } \n"
+          + "  optional {?subject  ex:jaar ?jaar. } \n"
           + "  optional {?subject  ex:number1 ?number1. } \n"
           + "  optional {?subject  ex:number2 ?number2. } \n"
           + "  optional {?subject  ex:number3 ?number3. } \n"
@@ -143,6 +156,11 @@ public class SparqlSelectRecordProcessorTest {
               "type" : "int",
               "logicalType" : "date"
             }, "null" ]
+          }, {
+            "name" : "jaar",
+            "type" : [
+              "int",
+              "null" ]
           } ]
         }
   """;
@@ -216,7 +234,7 @@ public class SparqlSelectRecordProcessorTest {
   }
 
   @Test
-  void testSuccessFlowJson() throws Exception {
+  void testSuccessFlowJsonWithoutSchema() throws Exception {
 
     // when
     JsonRecordSetWriter recordSetWriter = new JsonRecordSetWriter();
@@ -238,6 +256,7 @@ public class SparqlSelectRecordProcessorTest {
     for (Iterator<JsonNode> it = jsonNode.elements(); it.hasNext(); ) {
       JsonNode n = it.next();
       assertThat(n.get("unknown").asText("")).isIn("some lexicalform", "");
+      assertThat(n.get("jaar").asText("")).isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
     }
   }
 
@@ -306,6 +325,7 @@ public class SparqlSelectRecordProcessorTest {
           .isIn("some lexicalform", "");
       assertThat(nextRecord.get("date") instanceof Integer).isTrue();
       assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+      assertThat(nextRecord.get("jaar")).isEqualTo(19723);
     }
     dataFileWriter.close();
   }
@@ -346,6 +366,7 @@ public class SparqlSelectRecordProcessorTest {
           .isIn("some lexicalform", "");
       assertThat(nextRecord.get("date") instanceof Integer).isTrue();
       assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+      assertThat(nextRecord.get("jaar")).isEqualTo(2024);
     }
     dataFileWriter.close();
   }
@@ -385,6 +406,7 @@ public class SparqlSelectRecordProcessorTest {
           .isIn("some lexicalform", "");
       assertThat(nextRecord.get("date") instanceof Integer).isTrue();
       assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+      assertThat(nextRecord.get("jaar")).isEqualTo(2024);
     }
   }
 
@@ -415,6 +437,7 @@ public class SparqlSelectRecordProcessorTest {
           .isIn("some lexicalform", "");
       assertThat(nextRecord.get("date") instanceof Integer).isTrue();
       assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+      assertThat(nextRecord.get("jaar")).isEqualTo(19723);
     }
   }
 

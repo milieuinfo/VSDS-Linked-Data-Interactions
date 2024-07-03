@@ -22,6 +22,9 @@ public class RdfDatatypeMapper {
           entry(XSDDatatype.XSDbyte.getURI(), RecordFieldType.BYTE.getDataType()),
           entry(XSDDatatype.XSDboolean.getURI(), RecordFieldType.BOOLEAN.getDataType()),
           entry(XSDDatatype.XSDdate.getURI(), RecordFieldType.DATE.getDataType()),
+          entry(XSDDatatype.XSDgDay.getURI(), RecordFieldType.DATE.getDataType()),
+          entry(XSDDatatype.XSDgMonth.getURI(), RecordFieldType.DATE.getDataType()),
+          entry(XSDDatatype.XSDgYear.getURI(), RecordFieldType.DATE.getDataType()),
           entry(XSDDatatype.XSDdateTime.getURI(), RecordFieldType.TIMESTAMP.getDataType()),
           entry(XSDDatatype.XSDtime.getURI(), RecordFieldType.TIME.getDataType()));
   // TODO: complete type mapping
