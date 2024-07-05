@@ -12,32 +12,20 @@ import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_ACCESS_STRA
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Year;
-import java.time.chrono.ChronoLocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -256,7 +244,8 @@ public class SparqlSelectRecordProcessorTest {
     for (Iterator<JsonNode> it = jsonNode.elements(); it.hasNext(); ) {
       JsonNode n = it.next();
       assertThat(n.get("unknown").asText("")).isIn("some lexicalform", "");
-      assertThat(n.get("jaar").asText("")).isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
+      assertThat(n.get("jaar").asText(""))
+          .isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
     }
   }
 
