@@ -12,12 +12,14 @@ import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_ACCESS_STRA
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -31,21 +33,26 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.jena.riot.Lang;
 import org.apache.nifi.avro.AvroRecordSetWriter;
 import org.apache.nifi.avro.NonCachingDatumReader;
 import org.apache.nifi.csv.CSVRecordSetWriter;
 import org.apache.nifi.json.JsonRecordSetWriter;
+import org.apache.nifi.json.JsonTreeReader;
 import org.apache.nifi.parquet.ParquetReader;
 import org.apache.nifi.parquet.ParquetRecordSetWriter;
 import org.apache.nifi.parquet.stream.NifiParquetInputFile;
 import org.apache.nifi.reporting.InitializationException;
+import org.apache.nifi.serialization.RecordReaderFactory;
 import org.apache.nifi.serialization.RecordSetWriterFactory;
 import org.apache.nifi.util.MockFlowFile;
 import org.apache.nifi.util.TestRunner;
@@ -73,6 +80,7 @@ public class SparqlSelectRecordProcessorTest {
           + "  optional {?subject  ex:date ?date. } \n"
           + "  optional {?subject  ex:datetime ?dateTime. } \n"
           + "  optional {?subject  ex:jaar ?jaar. } \n"
+          + "  optional {?subject  ex:tijd ?tijd. } \n"
           + "  optional {?subject  ex:number1 ?number1. } \n"
           + "  optional {?subject  ex:number2 ?number2. } \n"
           + "  optional {?subject  ex:number3 ?number3. } \n"
@@ -149,6 +157,14 @@ public class SparqlSelectRecordProcessorTest {
             "type" : [
               "int",
               "null" ]
+          }, {
+            "name" : "tijd",
+            "type" : [
+              {
+                "type": "int",
+                "logicalType" : "time-millis"
+              },
+              "null" ]
           } ]
         }
   """;
@@ -206,7 +222,7 @@ public class SparqlSelectRecordProcessorTest {
   }
 
   @Test
-  void testSuccessFlowCsv() throws Exception {
+  void testSuccessFlowCsvWithoutSchema() throws Exception {
 
     // when
     CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
@@ -215,14 +231,128 @@ public class SparqlSelectRecordProcessorTest {
         Lang.TURTLE.getHeaderString(),
         recordSetWriter,
         Collections.emptyMap(),
-        "data_test2.ttl");
+        "data_consolidated.ttl");
 
     // then
     assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    InputStreamReader inputStreamReader = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> i = CSVFormat.RFC4180.parse(inputStreamReader).stream().iterator();
+
+    InputStreamReader inputStreamReader2 = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> iterator =
+        CSVFormat.RFC4180
+            .builder()
+            .setHeader(i.next().values())
+            .setSkipHeaderRecord(true)
+            .build()
+            .parse(inputStreamReader2)
+            .stream()
+            .iterator();
+
+    while (iterator.hasNext()) {
+      CSVRecord nextRecord = iterator.next();
+      if (nextRecord == null) break;
+
+      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+          .isIn("some lexicalform", "");
+      assertThat(nextRecord.get("jaar"))
+          .isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
+    }
   }
 
   @Test
-  void testSuccessFlowJsonWithoutSchema() throws Exception {
+  void testSuccessFlowCsvWithSchema() throws Exception {
+
+    // when
+    CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(
+            SCHEMA_ACCESS_STRATEGY.getName(),
+            SCHEMA_TEXT_PROPERTY.getValue(),
+            SCHEMA_TEXT.getName(),
+            schema),
+        "data_consolidated.ttl");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    InputStreamReader inputStreamReader = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> i = CSVFormat.RFC4180.parse(inputStreamReader).stream().iterator();
+
+    InputStreamReader inputStreamReader2 = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> iterator =
+        CSVFormat.RFC4180
+            .builder()
+            .setHeader(i.next().values())
+            .setSkipHeaderRecord(true)
+            .build()
+            .parse(inputStreamReader2)
+            .stream()
+            .iterator();
+
+    while (iterator.hasNext()) {
+      CSVRecord nextRecord = iterator.next();
+      if (nextRecord == null) break;
+
+      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+          .isIn("some lexicalform", "");
+      assertThat(nextRecord.get("jaar")).isIn("2024");
+    }
+  }
+
+  @Test
+  void testSuccessFlowCsvWithoutSchemaRecords() throws Exception {
+
+    // when
+    CSVRecordSetWriter recordSetWriter = new CSVRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Collections.emptyMap(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    InputStreamReader inputStreamReader = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> i = CSVFormat.RFC4180.parse(inputStreamReader).stream().iterator();
+
+    InputStreamReader inputStreamReader2 = new InputStreamReader(result.getContentStream());
+    Iterator<CSVRecord> iterator =
+        CSVFormat.RFC4180
+            .builder()
+            .setHeader(i.next().values())
+            .setSkipHeaderRecord(true)
+            .build()
+            .parse(inputStreamReader2)
+            .stream()
+            .iterator();
+
+    while (iterator.hasNext()) {
+      CSVRecord nextRecord = iterator.next();
+      if (nextRecord == null) break;
+
+      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+          .isIn("some lexicalform", "");
+      assertThat(nextRecord.get("jaar"))
+          .isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
+    }
+  }
+
+  @Test
+  void testSuccessFlowJsonWithoutSchemaConsolidated() throws Exception {
 
     // when
     JsonRecordSetWriter recordSetWriter = new JsonRecordSetWriter();
@@ -231,7 +361,39 @@ public class SparqlSelectRecordProcessorTest {
         Lang.TURTLE.getHeaderString(),
         recordSetWriter,
         Map.of(ALLOW_SCIENTIFIC_NOTATION.getName(), "true"),
-        "data_test2.ttl");
+        "data_consolidated.ttl");
+
+    // then
+    assertSucces();
+
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonNode = objectMapper.readTree(result.getContent());
+    assertThat(jsonNode.isArray()).isTrue();
+    assertThat(jsonNode.size()).isEqualTo(6);
+    for (Iterator<JsonNode> it = jsonNode.elements(); it.hasNext(); ) {
+      JsonNode n = it.next();
+      assertThat(n.get("unknown").asText("")).isIn("some lexicalform", "");
+      assertThat(n.get("jaar").asText(""))
+          .isIn(Long.valueOf(new SimpleDateFormat("yyyy").parse("2024").getTime()).toString());
+    }
+  }
+
+  @Test
+  void testSuccessFlowJsonWithoutSchemaRecords() throws Exception {
+
+    // when
+    JsonRecordSetWriter recordSetWriter = new JsonRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(ALLOW_SCIENTIFIC_NOTATION.getName(), "true"),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
 
     // then
     assertSucces();
@@ -259,7 +421,48 @@ public class SparqlSelectRecordProcessorTest {
         Lang.TURTLE.getHeaderString(),
         recordSetWriter,
         Map.of("root_tag_name", "results", "record_tag_name", "result"),
-        "data_test2.ttl");
+        "data_consolidated.ttl");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = builderFactory.newDocumentBuilder();
+    Document xmlDocument =
+        builder.parse(
+            new ByteArrayInputStream(result.getContent().getBytes(StandardCharsets.UTF_8)));
+
+    File file = new File("data.xml");
+    Files.write(file.toPath(), result.getContentStream().readAllBytes());
+
+    XPath xPath = XPathFactory.newInstance().newXPath();
+    String expression1 = "/results/result/unknown";
+    NodeList nodeList1 =
+        (NodeList) xPath.compile(expression1).evaluate(xmlDocument, XPathConstants.NODESET);
+    assertThat(nodeList1.getLength()).isEqualTo(6);
+
+    for (int i = 0; i < nodeList1.getLength(); i++) {
+      Node item = nodeList1.item(i);
+      assertThat(item.getTextContent()).isIn("some lexicalform", "");
+    }
+  }
+
+  @Test
+  void testSuccessFlowXmlRecords() throws Exception {
+
+    // when
+    XMLRecordSetWriter recordSetWriter = new XMLRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of("root_tag_name", "results", "record_tag_name", "result"),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
 
     // then
     assertSucces();
@@ -292,31 +495,76 @@ public class SparqlSelectRecordProcessorTest {
     // when
     AvroRecordSetWriter recordSetWriter = new AvroRecordSetWriter();
     executeRunner(
-        selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Map.of(), "data_test2.ttl");
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        "data_consolidated.ttl");
 
     // then
     assertSucces();
     MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
 
-    DataFileStream<GenericRecord> avroStream =
-        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>());
+    try (DataFileStream<GenericRecord> avroStream =
+        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>())) {
 
-    File file = new File("data.avro");
-    DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
-    DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
-    dataFileWriter.create(new Schema.Parser().parse(schema), file);
+      File file = new File("data.avro");
+      DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
+      DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
+      dataFileWriter.create(avroStream.getSchema(), file);
 
-    while (avroStream.hasNext()) {
-      GenericRecord nextRecord = avroStream.next();
+      while (avroStream.hasNext()) {
+        GenericRecord nextRecord = avroStream.next();
 
-      dataFileWriter.append(nextRecord);
-      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
-          .isIn("some lexicalform", "");
-      assertThat(nextRecord.get("date") instanceof Integer).isTrue();
-      assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
-      assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+        dataFileWriter.append(nextRecord);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+      }
     }
-    dataFileWriter.close();
+  }
+
+  @Test
+  void testSuccessFlowAvroWithoutSchemaRecords() throws Exception {
+
+    // when
+    AvroRecordSetWriter recordSetWriter = new AvroRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (DataFileStream<GenericRecord> avroStream =
+        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>())) {
+
+      File file = new File("data.avro");
+      DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
+      DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
+      dataFileWriter.create(avroStream.getSchema(), file);
+
+      while (avroStream.hasNext()) {
+        GenericRecord nextRecord = avroStream.next();
+
+        dataFileWriter.append(nextRecord);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+      }
+    }
   }
 
   @Test
@@ -333,31 +581,76 @@ public class SparqlSelectRecordProcessorTest {
             SCHEMA_TEXT_PROPERTY.getValue(),
             SCHEMA_TEXT.getName(),
             schema),
-        "data_test2.ttl");
+        "data_consolidated.ttl");
 
     // then
     assertSucces();
     MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
 
-    DataFileStream<GenericRecord> avroStream =
-        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>());
+    try (DataFileStream<GenericRecord> avroStream =
+        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>())) {
 
-    File file = new File("data.avro");
-    DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
-    DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
-    dataFileWriter.create(new Schema.Parser().parse(schema), file);
+      File file = new File("data.avro");
+      DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
+      DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
+      dataFileWriter.create(new Schema.Parser().parse(schema), file);
 
-    while (avroStream.hasNext()) {
-      GenericRecord nextRecord = avroStream.next();
+      while (avroStream.hasNext()) {
+        GenericRecord nextRecord = avroStream.next();
 
-      dataFileWriter.append(nextRecord);
-      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
-          .isIn("some lexicalform", "");
-      assertThat(nextRecord.get("date") instanceof Integer).isTrue();
-      assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
-      assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+        dataFileWriter.append(nextRecord);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+      }
     }
-    dataFileWriter.close();
+  }
+
+  @Test
+  void testSuccessFlowAvroWithSchemaRecords() throws Exception {
+
+    // when
+    AvroRecordSetWriter recordSetWriter = new AvroRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(
+            SCHEMA_ACCESS_STRATEGY.getName(),
+            SCHEMA_TEXT_PROPERTY.getValue(),
+            SCHEMA_TEXT.getName(),
+            schema),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (DataFileStream<GenericRecord> avroStream =
+        new DataFileStream<>(result.getContentStream(), new NonCachingDatumReader<>())) {
+
+      File file = new File("data.avro");
+      DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
+      DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
+      dataFileWriter.create(new Schema.Parser().parse(schema), file);
+
+      while (avroStream.hasNext()) {
+        GenericRecord nextRecord = avroStream.next();
+
+        dataFileWriter.append(nextRecord);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+      }
+    }
   }
 
   @Test
@@ -374,28 +667,73 @@ public class SparqlSelectRecordProcessorTest {
             SCHEMA_TEXT_PROPERTY.getValue(),
             SCHEMA_TEXT.getName(),
             schema),
-        "data_test2.ttl");
+        "data_consolidated.ttl");
 
     // then
     assertSucces();
     MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
 
-    org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
         AvroParquetReader.genericRecordReader(
-            new NifiParquetInputFile(result.getContentStream(), result.getSize()));
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
 
-    File file = new File("data.parquet");
-    Files.write(file.toPath(), result.getContentStream().readAllBytes());
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
 
-    while (true) {
-      GenericRecord nextRecord = genericRecordParquetReader.read();
-      if (nextRecord == null) break;
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) break;
 
-      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
-          .isIn("some lexicalform", "");
-      assertThat(nextRecord.get("date") instanceof Integer).isTrue();
-      assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
-      assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+      }
+    }
+  }
+
+  @Test
+  void testSuccessFlowParquetWithSchemaRecords() throws Exception {
+
+    // when
+    ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(
+            SCHEMA_ACCESS_STRATEGY.getName(),
+            SCHEMA_TEXT_PROPERTY.getValue(),
+            SCHEMA_TEXT.getName(),
+            schema),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+        AvroParquetReader.genericRecordReader(
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
+
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
+
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) break;
+
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(2024);
+      }
     }
   }
 
@@ -405,28 +743,113 @@ public class SparqlSelectRecordProcessorTest {
     // when
     ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
     executeRunner(
-        selectQuery, Lang.TURTLE.getHeaderString(), recordSetWriter, Map.of(), "data_test2.ttl");
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        "data_consolidated.ttl");
 
     // then
     assertSucces();
     MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
 
-    org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
         AvroParquetReader.genericRecordReader(
-            new NifiParquetInputFile(result.getContentStream(), result.getSize()));
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
 
-    File file = new File("data.parquet");
-    Files.write(file.toPath(), result.getContentStream().readAllBytes());
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
 
-    while (true) {
-      GenericRecord nextRecord = genericRecordParquetReader.read();
-      if (nextRecord == null) break;
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) break;
 
-      assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
-          .isIn("some lexicalform", "");
-      assertThat(nextRecord.get("date") instanceof Integer).isTrue();
-      assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
-      assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+      }
+    }
+  }
+
+  @Test
+  void testSuccessFlowParquetWithoutSchemaRecords() throws Exception {
+
+    // when
+    ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+        AvroParquetReader.genericRecordReader(
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
+
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
+
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) break;
+
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThat(nextRecord.get("jaar")).isEqualTo(19723);
+      }
+    }
+  }
+
+  @Test
+  void testSuccessFlowParquetWithoutSchemaRecords_missingFirstRecordField() throws Exception {
+
+    // when
+    ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records_first_missing.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+        AvroParquetReader.genericRecordReader(
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
+
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
+
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) break;
+
+        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
+            .isIn("some lexicalform", "");
+        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
+        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
+        assertThatThrownBy(() -> nextRecord.get("jaar")).isInstanceOf(AvroRuntimeException.class);
+      }
     }
   }
 
@@ -444,6 +867,36 @@ public class SparqlSelectRecordProcessorTest {
     testRunner.addControllerService(RECORD_WRITER.getName(), recordSetWriterFactory, properties);
 
     testRunner.enableControllerService(recordSetWriterFactory);
+
+    testRunner.assertValid();
+
+    testRunner.enqueue(fileNameToFile(filename).toPath());
+
+    testRunner.run();
+  }
+
+  private void executeRunner(
+      String select,
+      String format,
+      RecordSetWriterFactory recordSetWriterFactory,
+      Map writerProperties,
+      RecordReaderFactory recordReaderFactory,
+      Map readerProperties,
+      String fieldName,
+      String filename)
+      throws InitializationException, URISyntaxException, IOException {
+    testRunner.setProperty(SPARQL_SELECT_QUERY, select);
+    testRunner.setProperty(DATA_SOURCE_FORMAT, format);
+    testRunner.setProperty(RECORD_WRITER, RECORD_WRITER.getName());
+    testRunner.setProperty(RECORD_READER, RECORD_READER.getName());
+    testRunner.setProperty(RDF_PAYLOAD_FIELD, fieldName);
+
+    testRunner.addControllerService(
+        RECORD_WRITER.getName(), recordSetWriterFactory, writerProperties);
+    testRunner.addControllerService(RECORD_READER.getName(), recordReaderFactory, readerProperties);
+
+    testRunner.enableControllerService(recordSetWriterFactory);
+    testRunner.enableControllerService(recordReaderFactory);
 
     testRunner.assertValid();
 

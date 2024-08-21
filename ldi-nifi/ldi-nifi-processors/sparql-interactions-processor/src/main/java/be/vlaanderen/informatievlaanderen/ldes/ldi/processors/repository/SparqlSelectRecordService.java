@@ -3,11 +3,15 @@ package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -15,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.function.Function;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
@@ -43,6 +48,7 @@ import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 import org.apache.nifi.serialization.record.RecordSchema;
+import org.apache.nifi.serialization.record.StandardSchemaIdentifier;
 
 public class SparqlSelectRecordService {
 
@@ -186,6 +192,17 @@ public class SparqlSelectRecordService {
     if (dataType.isPresent() && (dataType.get().equals(RecordFieldType.DATE.getDataType()) || dataType.get().equals(RecordFieldType.TIMESTAMP.getDataType()))) {
       Calendar calendar = ((XSDDateTime) literal.getValue()).asCalendar();
       return calendar.getTimeInMillis();
+    }
+
+    if (dataType.isPresent() && dataType.get().equals(RecordFieldType.TIME.getDataType())) {
+      Calendar calendar = ((XSDDateTime) literal.getValue()).asCalendar();
+      TimeZone tz = calendar.getTimeZone();
+      ZoneId zid = tz == null ? ZoneId.systemDefault() : tz.toZoneId();
+      LocalDateTime time = LocalDateTime.ofInstant(calendar.toInstant(), zid);
+      LocalDateTime midnight = time.toLocalDate().atStartOfDay();
+
+      Duration duration = Duration.between(midnight, time);
+      return duration.get(ChronoUnit.SECONDS)*1000;
     }
 
     if (dataType.isPresent() && dataType.get().equals(RecordFieldType.INT.getDataType())) {

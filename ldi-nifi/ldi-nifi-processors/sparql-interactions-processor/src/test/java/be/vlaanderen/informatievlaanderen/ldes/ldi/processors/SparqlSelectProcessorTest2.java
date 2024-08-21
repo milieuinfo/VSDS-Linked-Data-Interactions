@@ -53,7 +53,7 @@ public class SparqlSelectProcessorTest2 {
                              "  optional {?subject  ex:link ?link.} \n" +
                              "} ORDER BY ?subject \n";
 
-        testSuccessFlow(selectQuery, "data_test2.ttl");
+        testSuccessFlow(selectQuery, "data_consolidated.ttl");
     }
 
     private void testSuccessFlow(String selectQuery, String inputFileName)

@@ -11,6 +11,7 @@
                             ex:date "2024-04-30"^^xsd:date ;
                             ex:datetime "2024-09-30T08:13:50-01:00"^^xsd:dateTime ;
                             ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50-01:00"^^xsd:time ;
                             ex:number1 100.456 ;
                             ex:number2 100 ;
                             ex:number3 "100E2"^^xsd:double ;
@@ -23,26 +24,12 @@
                             .
 
 <http://example.org/id/ex2> a ex:Class1 ;
-                            ex:id "ex1" ;
-                            ex:title "Example 1" ;
+                            ex:id "ex2" ;
+                            ex:title "Example 2" ;
                             ex:date "2024-04-30"^^xsd:date ;
                             ex:datetime "2024-09-30T08:13:50+01:00"^^xsd:dateTime ;
                             ex:jaar "2024"^^xsd:gYear ;
-                            ex:number1 100.456 ;
-                            ex:number2 100.456 ;
-                            ex:integer "100"^^xsd:integer ;
-                            ex:float "-INF"^^xsd:float ;
-                            ex:decimal "100.456"^^xsd:decimal ;
-                            ex:boolean true ;
-                            ex:link <http://example.org/id/concept/a> ;
-                            .
-
-<http://example.org/id/ex2> a ex:Class1 ;
-                            ex:id "ex1" ;
-                            ex:title "Example 1" ;
-                            ex:date "2024-04-30"^^xsd:date ;
-                            ex:datetime "2024-09-30T08:13:50.5+01:00"^^xsd:dateTime ;
-                            ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50+01:00"^^xsd:time ;
                             ex:number1 100.456 ;
                             ex:number2 100.456 ;
                             ex:integer "100"^^xsd:integer ;
@@ -53,26 +40,12 @@
                             .
 
 <http://example.org/id/ex3> a ex:Class1 ;
-                            ex:id "ex1" ;
-                            ex:title "Example 1" ;
+                            ex:id "ex3" ;
+                            ex:title "Example 3" ;
                             ex:date "2024-04-30"^^xsd:date ;
-                            ex:datetime "2024-09-30T08:13:50"^^xsd:dateTime ;
+                            ex:datetime "2024-09-30T08:13:50.5+01:00"^^xsd:dateTime ;
                             ex:jaar "2024"^^xsd:gYear ;
-                            ex:number1 100.456 ;
-                            ex:number2 100.456 ;
-                            ex:integer "100"^^xsd:integer ;
-                            ex:float "100.456"^^xsd:float ;
-                            ex:decimal "100.456"^^xsd:decimal ;
-                            ex:boolean true ;
-                            ex:link <http://example.org/id/concept/a> ;
-                            .
-
-<http://example.org/id/ex2> a ex:Class1 ;
-                            ex:id "ex1" ;
-                            ex:title "Example 1" ;
-                            ex:date "2024-04-30"^^xsd:date ;
-                            ex:datetime "2024-09-30T08:13:50Z"^^xsd:dateTime ;
-                            ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50.5+01:00"^^xsd:time ;
                             ex:number1 100.456 ;
                             ex:number2 100.456 ;
                             ex:integer "100"^^xsd:integer ;
@@ -82,12 +55,45 @@
                             ex:link <http://example.org/id/concept/a> ;
                             .
 
-<http://example.org/id/ex2> a ex:Class1 ;
-                            ex:id "ex1" ;
-                            ex:title "Example 1" ;
+<http://example.org/id/ex4> a ex:Class1 ;
+                            ex:id "ex4" ;
+                            ex:title "Example 4" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50"^^xsd:dateTime ;
+                            ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50"^^xsd:time ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "100.456"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex5> a ex:Class1 ;
+                            ex:id "ex5" ;
+                            ex:title "Example 5" ;
+                            ex:date "2024-04-30"^^xsd:date ;
+                            ex:datetime "2024-09-30T08:13:50Z"^^xsd:dateTime ;
+                            ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50Z"^^xsd:time ;
+                            ex:number1 100.456 ;
+                            ex:number2 100.456 ;
+                            ex:integer "100"^^xsd:integer ;
+                            ex:float "-INF"^^xsd:float ;
+                            ex:decimal "100.456"^^xsd:decimal ;
+                            ex:boolean true ;
+                            ex:link <http://example.org/id/concept/a> ;
+                            .
+
+<http://example.org/id/ex6> a ex:Class1 ;
+                            ex:id "ex6" ;
+                            ex:title "Example 6" ;
                             ex:date "2024-04-30"^^xsd:date ;
                             ex:datetime "2024-09-30T08:13:50.5Z"^^xsd:dateTime ;
                             ex:jaar "2024"^^xsd:gYear ;
+                            ex:tijd "08:13:50.5Z"^^xsd:time ;
                             ex:number1 100.456 ;
                             ex:number2 100.456 ;
                             ex:integer "100"^^xsd:integer ;
