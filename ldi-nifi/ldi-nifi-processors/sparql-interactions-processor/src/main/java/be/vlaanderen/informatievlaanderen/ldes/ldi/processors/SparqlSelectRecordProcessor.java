@@ -4,7 +4,9 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.Spar
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RDF_PAYLOAD_FIELD;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_READER;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_WRITER;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RETURN_LEXICAL_FORM;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.defaultSchema;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.deriveSchema;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.getQueryResults;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository.SparqlSelectRecordService.getSchemaRecordsListPair;
@@ -20,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.riot.Lang;
 import org.apache.nifi.annotation.behavior.InputRequirement;
@@ -42,10 +43,6 @@ import org.apache.nifi.serialization.record.Record;
 import org.apache.nifi.serialization.record.RecordSchema;
 import org.apache.nifi.util.StopWatch;
 
-/**
- * // * TODO Extra relation voor empty output // * TODO Configure custom recordschema and implement
- * mapping from sparql query solutions to records // * TODO Refactoring
- */
 @Tags({"ldes, rdf, SPARQL, record, select"})
 @InputRequirement(InputRequirement.Requirement.INPUT_REQUIRED)
 @WritesAttributes({
@@ -86,7 +83,7 @@ public class SparqlSelectRecordProcessor extends AbstractProcessor {
   @Override
   public final List<PropertyDescriptor> getSupportedPropertyDescriptors() {
     return List.of(
-        SPARQL_SELECT_QUERY, DATA_SOURCE_FORMAT, RECORD_WRITER, RECORD_READER, RDF_PAYLOAD_FIELD);
+        SPARQL_SELECT_QUERY, DATA_SOURCE_FORMAT, RECORD_WRITER, RECORD_READER, RDF_PAYLOAD_FIELD, RETURN_LEXICAL_FORM);
   }
 
   @Override
@@ -173,10 +170,17 @@ public class SparqlSelectRecordProcessor extends AbstractProcessor {
       }
 
       RecordSchema writeSchema;
-      try {
-        writeSchema = writerFactory.getSchema(original.getAttributes(), null);
-      } catch (SchemaNotFoundException e) {
-        writeSchema = deriveSchema(firstResults);
+      if (context
+          .getProperty(RETURN_LEXICAL_FORM)
+          .getValue()
+          .equals("true")) {
+        writeSchema = defaultSchema(firstResults);
+      } else {
+        try {
+          writeSchema = writerFactory.getSchema(original.getAttributes(), null);
+        } catch (SchemaNotFoundException e) {
+          writeSchema = deriveSchema(firstResults);
+        }
       }
 
       RecordSchema finalWriteSchema = writeSchema;

@@ -52,7 +52,8 @@ import org.apache.nifi.serialization.record.StandardSchemaIdentifier;
 
 public class SparqlSelectRecordService {
 
-  public static ResultSetRewindable getQueryResults(byte[] incomingRecord, Lang rdfLang, String query) {
+  public static ResultSetRewindable getQueryResults(
+      byte[] incomingRecord, Lang rdfLang, String query) {
     final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingRecord);
     Model model = RDFParser.source(byteArrayInputStream).lang(rdfLang).build().toModel();
     return executeSelect(model, query);
@@ -189,7 +190,9 @@ public class SparqlSelectRecordService {
       return literal.getLexicalForm();
     }
 
-    if (dataType.isPresent() && (dataType.get().equals(RecordFieldType.DATE.getDataType()) || dataType.get().equals(RecordFieldType.TIMESTAMP.getDataType()))) {
+    if (dataType.isPresent()
+        && (dataType.get().equals(RecordFieldType.DATE.getDataType())
+            || dataType.get().equals(RecordFieldType.TIMESTAMP.getDataType()))) {
       Calendar calendar = ((XSDDateTime) literal.getValue()).asCalendar();
       return calendar.getTimeInMillis();
     }
@@ -202,7 +205,7 @@ public class SparqlSelectRecordService {
       LocalDateTime midnight = time.toLocalDate().atStartOfDay();
 
       Duration duration = Duration.between(midnight, time);
-      return duration.get(ChronoUnit.SECONDS)*1000;
+      return duration.get(ChronoUnit.SECONDS) * 1000;
     }
 
     if (dataType.isPresent() && dataType.get().equals(RecordFieldType.INT.getDataType())) {
@@ -224,14 +227,10 @@ public class SparqlSelectRecordService {
     List<RecordField> fields = new ArrayList<>();
     while (resultSet.hasNext()) {
       QuerySolution qs = resultSet.next();
-      Iterator<String> it = qs.varNames();
-      while (it.hasNext()) {
-        String column = it.next();
+      for (String column : resultSet.getResultVars()) {
         RDFNode n = qs.get(column);
-
-        // STRING as default data type
         DataType dt = RecordFieldType.STRING.getDataType();
-        if (n.isLiteral()) {
+        if (n != null && n.isLiteral()) {
           dt = RdfDatatypeMapper.getRecordType(n.asLiteral().getDatatype().getURI());
         }
         if (fields.stream().noneMatch(rf -> rf.getFieldName().equals(column))) {
@@ -240,6 +239,15 @@ public class SparqlSelectRecordService {
       }
     }
     resultSet.reset();
+    return new SimpleRecordSchema(fields);
+  }
+
+  public static RecordSchema defaultSchema(ResultSetRewindable resultSet) {
+    List<RecordField> fields = new ArrayList<>();
+    for (String column : resultSet.getResultVars()) {
+      DataType dt = RecordFieldType.STRING.getDataType();
+      fields.add(new RecordField(column, dt));
+    }
     return new SimpleRecordSchema(fields);
   }
 }

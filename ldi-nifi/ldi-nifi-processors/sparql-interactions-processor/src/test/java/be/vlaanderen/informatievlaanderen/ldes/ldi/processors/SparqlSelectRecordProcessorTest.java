@@ -5,6 +5,7 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.Spar
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RDF_PAYLOAD_FIELD;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_READER;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_WRITER;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RETURN_LEXICAL_FORM;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
 import static org.apache.nifi.json.JsonRecordSetWriter.ALLOW_SCIENTIFIC_NOTATION;
@@ -12,7 +13,6 @@ import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_ACCESS_STRA
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_TEXT_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,14 +27,16 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Parser;
+import org.apache.avro.Schema.Type;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -45,6 +47,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.jena.riot.Lang;
 import org.apache.nifi.avro.AvroRecordSetWriter;
 import org.apache.nifi.avro.NonCachingDatumReader;
+import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.csv.CSVRecordSetWriter;
 import org.apache.nifi.json.JsonRecordSetWriter;
 import org.apache.nifi.json.JsonTreeReader;
@@ -593,7 +596,7 @@ public class SparqlSelectRecordProcessorTest {
       File file = new File("data.avro");
       DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
       DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
-      dataFileWriter.create(new Schema.Parser().parse(schema), file);
+      dataFileWriter.create(new Parser().parse(schema), file);
 
       while (avroStream.hasNext()) {
         GenericRecord nextRecord = avroStream.next();
@@ -638,7 +641,7 @@ public class SparqlSelectRecordProcessorTest {
       File file = new File("data.avro");
       DatumWriter<GenericRecord> writer = new GenericDatumWriter<>();
       DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(writer);
-      dataFileWriter.create(new Schema.Parser().parse(schema), file);
+      dataFileWriter.create(new Parser().parse(schema), file);
 
       while (avroStream.hasNext()) {
         GenericRecord nextRecord = avroStream.next();
@@ -814,7 +817,8 @@ public class SparqlSelectRecordProcessorTest {
   }
 
   @Test
-  void testSuccessFlowParquetWithoutSchemaRecords_missingFirstRecordField() throws Exception {
+  void testSuccessFlowParquetWithoutSchemaRecords_missingFirstRecordField_defaultBehaviour()
+      throws Exception {
 
     // when
     ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
@@ -842,13 +846,60 @@ public class SparqlSelectRecordProcessorTest {
 
       while (true) {
         GenericRecord nextRecord = genericRecordParquetReader.read();
-        if (nextRecord == null) break;
+        if (nextRecord == null) {
+          break;
+        }
+        assertThat(nextRecord.getSchema().getField("jaar").schema().getTypes())
+            .anyMatch(t -> t.getType().equals(Type.STRING));
 
-        assertThat(nextRecord.get("unknown") == null ? "" : nextRecord.get("unknown").toString())
-            .isIn("some lexicalform", "");
-        assertThat(nextRecord.get("date") instanceof Integer).isTrue();
-        assertThat(nextRecord.get("dateTime") instanceof Long).isTrue();
-        assertThatThrownBy(() -> nextRecord.get("jaar")).isInstanceOf(AvroRuntimeException.class);
+        assertThat(nextRecord.getSchema().getFields())
+            .anyMatch(
+                f -> f.schema().getTypes().stream().noneMatch(t -> t.getType().equals(Type.STRING)));
+      }
+    }
+  }
+
+  @Test
+  void testSuccessFlowParquetWithoutSchemaRecords_returnLexicalForm() throws Exception {
+
+    // when
+    ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        Map.of(
+            SPARQL_SELECT_QUERY,
+            selectQuery,
+            DATA_SOURCE_FORMAT,
+            Lang.TURTLE.getHeaderString(),
+            RETURN_LEXICAL_FORM,
+            "true"),
+        recordSetWriter,
+        Map.of(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records_first_missing.json");
+
+    // then
+    assertSucces();
+    MockFlowFile result = testRunner.getFlowFilesForRelationship(SUCCESS).get(0);
+
+    try (org.apache.parquet.hadoop.ParquetReader<GenericRecord> genericRecordParquetReader =
+        AvroParquetReader.genericRecordReader(
+            new NifiParquetInputFile(result.getContentStream(), result.getSize()))) {
+
+      File file = new File("data.parquet");
+      Files.write(file.toPath(), result.getContentStream().readAllBytes());
+
+      while (true) {
+        GenericRecord nextRecord = genericRecordParquetReader.read();
+        if (nextRecord == null) {
+          break;
+        }
+
+        assertThat(nextRecord.getSchema().getFields())
+            .allMatch(
+                f -> f.schema().getTypes().stream().anyMatch(t -> t.getType().equals(Type.STRING)));
       }
     }
   }
@@ -884,12 +935,33 @@ public class SparqlSelectRecordProcessorTest {
       Map readerProperties,
       String fieldName,
       String filename)
+      throws URISyntaxException, IOException, InitializationException {
+    executeRunner(
+        Map.of(SPARQL_SELECT_QUERY, select, DATA_SOURCE_FORMAT, format),
+        recordSetWriterFactory,
+        writerProperties,
+        recordReaderFactory,
+        readerProperties,
+        fieldName,
+        filename);
+  }
+
+  private void executeRunner(
+      Map<PropertyDescriptor, String> properties,
+      RecordSetWriterFactory recordSetWriterFactory,
+      Map writerProperties,
+      RecordReaderFactory recordReaderFactory,
+      Map readerProperties,
+      String fieldName,
+      String filename)
       throws InitializationException, URISyntaxException, IOException {
-    testRunner.setProperty(SPARQL_SELECT_QUERY, select);
-    testRunner.setProperty(DATA_SOURCE_FORMAT, format);
     testRunner.setProperty(RECORD_WRITER, RECORD_WRITER.getName());
     testRunner.setProperty(RECORD_READER, RECORD_READER.getName());
     testRunner.setProperty(RDF_PAYLOAD_FIELD, fieldName);
+    for (Entry<PropertyDescriptor, String> entry : properties.entrySet()) {
+      testRunner.setProperty(entry.getKey(), entry.getValue());
+    }
+    //    testRunner.setProperty(RETURN_LEXICAL_FORM, RETURN_LEXICAL_FORM.getDefaultValue());
 
     testRunner.addControllerService(
         RECORD_WRITER.getName(), recordSetWriterFactory, writerProperties);
