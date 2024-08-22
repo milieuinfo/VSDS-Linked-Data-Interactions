@@ -7,6 +7,7 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.Spar
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RECORD_WRITER;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.RETURN_LEXICAL_FORM;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.SparqlProcessorProperties.SPARQL_SELECT_QUERY;
+import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.FAILURE;
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.services.FlowManager.SUCCESS;
 import static org.apache.nifi.json.JsonRecordSetWriter.ALLOW_SCIENTIFIC_NOTATION;
 import static org.apache.nifi.schema.access.SchemaAccessUtils.SCHEMA_ACCESS_STRATEGY;
@@ -860,6 +861,27 @@ public class SparqlSelectRecordProcessorTest {
   }
 
   @Test
+  void testSuccessFlowParquetWithoutSchemaRecords_multipleTypes_defaultBehaviour()
+      throws Exception {
+
+    // when
+    ParquetRecordSetWriter recordSetWriter = new ParquetRecordSetWriter();
+    JsonTreeReader recordReader = new JsonTreeReader();
+    executeRunner(
+        selectQuery,
+        Lang.TURTLE.getHeaderString(),
+        recordSetWriter,
+        Map.of(),
+        recordReader,
+        Map.of(),
+        "payload",
+        "data_records_multiple_type.json");
+
+    // then
+    assertFailure();
+  }
+
+  @Test
   void testSuccessFlowParquetWithoutSchemaRecords_returnLexicalForm() throws Exception {
 
     // when
@@ -993,6 +1015,14 @@ public class SparqlSelectRecordProcessorTest {
       if (!testRunner.getFlowFilesForRelationship("empty").isEmpty()) {
         System.err.println("Resulting flowfile was empty");
       }
+      throw e;
+    }
+  }
+
+  private void assertFailure() {
+    try {
+      testRunner.assertTransferCount(FAILURE, 1);
+    } catch (AssertionFailedError e) {
       throw e;
     }
   }
