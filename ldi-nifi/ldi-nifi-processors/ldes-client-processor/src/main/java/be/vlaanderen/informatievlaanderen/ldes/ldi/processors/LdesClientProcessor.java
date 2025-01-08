@@ -56,6 +56,12 @@ import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.Ldes
 import static be.vlaanderen.informatievlaanderen.ldes.ldi.processors.config.LdesProcessorRelationships.DATA_RELATIONSHIP;
 import static org.apache.jena.rdf.model.ResourceFactory.createProperty;
 
+/**
+ * Entitymanagerfactory not in static but as instance field
+ * Nieuwe creatie bij de onscheduled, de huidige eerst goed afsluiten.
+ * juiste acties uitvoeren in verschillende processor lifecycle events.
+ */
+
 @SuppressWarnings("java:S2160") // nifi handles equals/hashcode of processors
 @Tags({ "ldes-client", "vsds" })
 @CapabilityDescription("Extract members from an LDES source and send them to the next processor")

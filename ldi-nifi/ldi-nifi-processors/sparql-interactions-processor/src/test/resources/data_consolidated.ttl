@@ -12,7 +12,7 @@
                             ex:datetime "2024-09-30T08:13:50-01:00"^^xsd:dateTime ;
                             ex:jaar "2024"^^xsd:gYear ;
                             ex:tijd "08:13:50-01:00"^^xsd:time ;
-                            ex:number1 100.456 ;
+                            ex:number1 "2.0E-4"^^<http://www.w3.org/2001/XMLSchema#decimal> ;
                             ex:number2 100 ;
                             ex:number3 "100E2"^^xsd:double ;
                             ex:integer "100"^^xsd:integer ;

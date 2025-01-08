@@ -10,6 +10,7 @@ import org.apache.nifi.serialization.record.RecordFieldType;
 
 public class RdfDatatypeMapper {
 
+  // todo map other xsddatatypes? e.g duration
   private static final Map<String, DataType> rdfMap =
       ofEntries(
           entry(XSDDatatype.XSDinteger.getURI(), RecordFieldType.LONG.getDataType()),

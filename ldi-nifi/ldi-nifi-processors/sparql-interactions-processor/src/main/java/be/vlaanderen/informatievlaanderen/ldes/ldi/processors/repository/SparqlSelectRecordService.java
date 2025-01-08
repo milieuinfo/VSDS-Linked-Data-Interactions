@@ -21,8 +21,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Function;
+
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
+import org.apache.jena.datatypes.xsd.impl.XSDDateType;
 import org.apache.jena.datatypes.xsd.impl.XSDYearType;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -31,6 +34,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFParser;
+import org.apache.jena.riot.RDFParserBuilder;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.flowfile.attributes.CoreAttributes;
 import org.apache.nifi.logging.ComponentLog;
@@ -193,7 +197,7 @@ public class SparqlSelectRecordService {
     if (dataType.isPresent()
         && (dataType.get().equals(RecordFieldType.DATE.getDataType())
             || dataType.get().equals(RecordFieldType.TIMESTAMP.getDataType()))) {
-      Calendar calendar = ((XSDDateTime) literal.getValue()).asCalendar();
+      Calendar calendar = parseDateTime(literal, dataType.get()).asCalendar();
       return calendar.getTimeInMillis();
     }
 
@@ -220,7 +224,35 @@ public class SparqlSelectRecordService {
       }
     }
 
-    return literal.getValue();
+//    if(!literal.getDatatype().isValid(literal.getLexicalForm())) return literal.getLexicalForm();
+//    if(!literal.asNode().getLiteral().isWellFormedRaw()) return literal.getLexicalForm();
+    try {
+      return literal.getValue();
+    }
+    catch (DatatypeFormatException e) {
+      return literal.getLexicalForm();
+    }
+  }
+
+  private static XSDDateTime parseDateTime(Literal literal, DataType dataType) {
+    Object value = literal.getValue();
+    if (value instanceof XSDDateTime) {
+      return (XSDDateTime) value;
+    }
+    // If literal is a string. try to parse the string.
+    if (literal.getDatatypeURI().equals(XSDDatatype.XSDstring.getURI())) {
+      if (dataType.equals(RecordFieldType.DATE.getDataType())) {
+        return (XSDDateTime) XSDDateType.XSDdate.parse(literal.getLexicalForm());
+      }
+      if (dataType.equals(RecordFieldType.TIMESTAMP.getDataType())) {
+        return (XSDDateTime) XSDDateType.XSDdateTime.parse(literal.getLexicalForm());
+      }
+      // todo other cases?
+    }
+    // if literal is number? Calendar
+//    new Calendar.Builder().setInstant();
+
+    throw new RuntimeException("Unable to convert literal with datatype "+literal.getDatatypeURI() +" and lexicalform "+literal.getLexicalForm()+ "to datetime");
   }
 
   public static RecordSchema deriveSchema(ResultSetRewindable resultSet) {
