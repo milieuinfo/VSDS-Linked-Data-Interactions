@@ -1,12 +1,13 @@
 package be.vlaanderen.informatievlaanderen.ldes.ldi.processors.repository;
 
-import static java.util.Map.entry;
-import static java.util.Map.ofEntries;
-
-import java.util.Map;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.nifi.serialization.record.DataType;
 import org.apache.nifi.serialization.record.RecordFieldType;
+
+import java.util.Map;
+
+import static java.util.Map.entry;
+import static java.util.Map.ofEntries;
 
 public class RdfDatatypeMapper {
 

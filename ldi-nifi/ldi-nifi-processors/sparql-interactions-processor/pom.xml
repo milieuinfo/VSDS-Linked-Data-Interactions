@@ -45,11 +45,11 @@
       <version>${nifi.version}</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.nifi/nifi-standard-processors -->
-    <dependency>
-      <groupId>org.apache.nifi</groupId>
-      <artifactId>nifi-standard-processors</artifactId>
-      <version>${nifi.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.apache.nifi</groupId>-->
+<!--      <artifactId>nifi-standard-processors</artifactId>-->
+<!--      <version>${nifi.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.apache.nifi</groupId>
       <artifactId>nifi-schema-registry-service-api</artifactId>
